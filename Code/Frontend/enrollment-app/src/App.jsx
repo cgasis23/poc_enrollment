@@ -2,9 +2,11 @@ import React, { useState } from 'react'
 import CustomerLocate from './components/CustomerLocate'
 import SetupAccount from './components/SetupAccount'
 import ThankYou from './components/ThankYou'
+import MFADemo from './components/MFADemo'
 
 function App() {
   const [currentStep, setCurrentStep] = useState(1)
+  const [showMFADemo, setShowMFADemo] = useState(false)
   const [formData, setFormData] = useState({
     accountNumber: '',
     ssn: '',
@@ -12,7 +14,8 @@ function App() {
     email: '',
     username: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    phoneNumber: ''
   })
 
   const handleNext = (data) => {
@@ -22,6 +25,25 @@ function App() {
 
   const handleBack = () => {
     setCurrentStep(prev => prev - 1)
+  }
+
+  const handleShowMFADemo = () => {
+    setShowMFADemo(true)
+  }
+
+  const handleBackToEnrollment = () => {
+    setShowMFADemo(false)
+    setCurrentStep(1)
+    setFormData({
+      accountNumber: '',
+      ssn: '',
+      birthdate: '',
+      email: '',
+      username: '',
+      password: '',
+      confirmPassword: '',
+      phoneNumber: ''
+    })
   }
 
   const renderStep = () => {
@@ -35,6 +57,22 @@ function App() {
       default:
         return <CustomerLocate formData={formData} onNext={handleNext} />
     }
+  }
+
+  if (showMFADemo) {
+    return (
+      <div>
+        <MFADemo />
+        <div className="fixed top-4 left-4">
+          <button
+            onClick={handleBackToEnrollment}
+            className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-lg transition-all duration-200"
+          >
+            ← Back to Enrollment
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -69,6 +107,16 @@ function App() {
         
         <div className="flex justify-center">
           {renderStep()}
+        </div>
+        
+        {/* Demo button */}
+        <div className="fixed bottom-4 left-4">
+          <button
+            onClick={handleShowMFADemo}
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200"
+          >
+            🛡️ Demo MFA Setup
+          </button>
         </div>
       </div>
     </div>

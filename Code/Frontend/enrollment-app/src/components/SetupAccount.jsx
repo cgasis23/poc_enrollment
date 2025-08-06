@@ -5,7 +5,8 @@ function SetupAccount({ formData, onNext, onBack }) {
     email: formData.email || '',
     username: formData.username || '',
     password: formData.password || '',
-    confirmPassword: formData.confirmPassword || ''
+    confirmPassword: formData.confirmPassword || '',
+    phoneNumber: formData.phoneNumber || ''
   })
   const [errors, setErrors] = useState({})
 
@@ -49,6 +50,10 @@ function SetupAccount({ formData, onNext, onBack }) {
       newErrors.confirmPassword = 'Please confirm your password'
     } else if (formState.password !== formState.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match'
+    }
+    
+    if (formState.phoneNumber && !/^\+?[\d\s\-\(\)]{10,}$/.test(formState.phoneNumber)) {
+      newErrors.phoneNumber = 'Please enter a valid phone number'
     }
     
     setErrors(newErrors)
@@ -139,6 +144,27 @@ function SetupAccount({ formData, onNext, onBack }) {
           />
           {errors.confirmPassword && (
             <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
+          )}
+        </div>
+        
+        <div>
+          <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 mb-2">
+            Phone Number
+          </label>
+          <input
+            type="tel"
+            id="phoneNumber"
+            name="phoneNumber"
+            value={formState.phoneNumber}
+            onChange={handleInputChange}
+            placeholder="Enter your phone number"
+            className={`form-input ${errors.phoneNumber ? 'border-red-500' : ''}`}
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            Optional - can be used for two-factor authentication setup later
+          </p>
+          {errors.phoneNumber && (
+            <p className="text-red-500 text-sm mt-1">{errors.phoneNumber}</p>
           )}
         </div>
         

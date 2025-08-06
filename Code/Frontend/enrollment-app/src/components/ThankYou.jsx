@@ -10,13 +10,13 @@ function ThankYou() {
           </svg>
         </div>
         <h2 className="text-3xl font-bold text-gray-900 mb-2">Thank You!</h2>
-        <p className="text-gray-600 text-lg">You will get an email shortly</p>
+        <p className="text-gray-600 text-lg">Your account has been successfully created!</p>
       </div>
       
       <div className="bg-gray-50 rounded-lg p-4 mb-6">
         <p className="text-sm text-gray-600">
           We've sent a confirmation email with your account details. 
-          Please check your inbox and follow the instructions to complete your account setup.
+          Please check your inbox and follow the instructions to complete your account setup, including setting up two-factor authentication.
         </p>
       </div>
       
