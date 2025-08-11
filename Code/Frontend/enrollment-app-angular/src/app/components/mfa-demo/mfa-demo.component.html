@@ -1,0 +1,24 @@
+<div *ngIf="currentStep() === 'complete'">
+  <app-mfa-complete [mfaResult]="mfaResult()!"></app-mfa-complete>
+</div>
+
+<div *ngIf="currentStep() === 'setup'">
+  <app-mfa-setup [userData]="mockUserData" (onComplete)="handleMFAComplete($event)"></app-mfa-setup>
+</div>
+
+<!-- Demo controls -->
+<div class="fixed bottom-4 right-4 bg-white rounded-lg shadow-lg p-4 border">
+  <h3 class="text-sm font-semibold text-gray-700 mb-2">Demo Controls</h3>
+  <div class="space-y-2">
+    <button
+      (click)="handleReset()"
+      class="text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded"
+    >
+      Reset Demo
+    </button>
+    <div class="text-xs text-gray-500">
+      <p>Email: {{ mockUserData.email }}</p>
+      <p>Phone: {{ mockUserData.phoneNumber }}</p>
+    </div>
+  </div>
+</div>

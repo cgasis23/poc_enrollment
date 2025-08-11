@@ -1,0 +1,66 @@
+<div *ngIf="showMFADemo()">
+  <app-mfa-demo></app-mfa-demo>
+  <div class="fixed top-4 left-4">
+    <button
+      (click)="handleBackToEnrollment()"
+      class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-lg transition-all duration-200"
+    >
+      ← Back to Enrollment
+    </button>
+  </div>
+</div>
+
+<div *ngIf="!showMFADemo()" class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4">
+  <div class="max-w-4xl mx-auto">
+    <div class="text-center mb-8">
+      <h1 class="text-4xl font-bold text-gray-900 mb-2">Account Opening</h1>
+      <div class="flex justify-center items-center space-x-4">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold"
+             [class]="currentStep() >= 1 ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-500'">
+          1
+        </div>
+        <div class="w-16 h-1"
+             [class]="currentStep() >= 2 ? 'bg-primary-600' : 'bg-gray-200'"></div>
+        <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold"
+             [class]="currentStep() >= 2 ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-500'">
+          2
+        </div>
+        <div class="w-16 h-1"
+             [class]="currentStep() >= 3 ? 'bg-primary-600' : 'bg-gray-200'"></div>
+        <div class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold"
+             [class]="currentStep() >= 3 ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-500'">
+          3
+        </div>
+      </div>
+    </div>
+    
+    <div class="flex justify-center">
+      <app-customer-locate 
+        *ngIf="renderStep() === 'customer-locate'"
+        [formData]="formData()" 
+        (onNext)="handleNext($event)">
+      </app-customer-locate>
+      
+      <app-setup-account 
+        *ngIf="renderStep() === 'setup-account'"
+        [formData]="formData()" 
+        (onNext)="handleNext($event)"
+        (onBack)="handleBack()">
+      </app-setup-account>
+      
+      <app-thank-you 
+        *ngIf="renderStep() === 'thank-you'">
+      </app-thank-you>
+    </div>
+    
+    <!-- Demo button -->
+    <div class="fixed bottom-4 left-4">
+      <button
+        (click)="handleShowMFADemo()"
+        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200"
+      >
+        🛡️ Demo MFA Setup
+      </button>
+    </div>
+  </div>
+</div>
