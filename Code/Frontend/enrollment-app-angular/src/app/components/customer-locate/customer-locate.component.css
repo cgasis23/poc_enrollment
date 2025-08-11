@@ -1,1 +1,27 @@
 /* Component-specific styles can be added here */
+
+/* Improve date input appearance */
+input[type="date"] {
+  font-family: inherit;
+}
+
+/* Add some spacing between form sections */
+.form-section {
+  margin-bottom: 1.5rem;
+}
+
+/* Improve input focus states */
+.form-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Error state styling */
+.form-input.border-red-500 {
+  border-color: #ef4444;
+}
+
+.form-input.border-red-500:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}

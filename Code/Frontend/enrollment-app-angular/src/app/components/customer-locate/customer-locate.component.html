@@ -14,42 +14,62 @@
         id="accountNumber"
         [value]="formState().accountNumber"
         (input)="handleInputChange('accountNumber', ($any($event.target).value))"
-        placeholder="Enter account number"
-        class="form-input"
+        placeholder="1234 5678 9012 3456"
+        maxlength="19"
+        [class]="'form-input ' + (errors().accountNumber ? 'border-red-500' : '')"
         required
       />
+      <p *ngIf="errors().accountNumber" class="text-red-500 text-sm mt-1">{{ errors().accountNumber }}</p>
+      <p *ngIf="!errors().accountNumber && formState().accountNumber" class="text-green-600 text-sm mt-1">
+        ✓ Account number format is valid
+      </p>
     </div>
     
     <div>
       <label for="ssn" class="block text-sm font-medium text-gray-700 mb-2">
-        SSN
+        Social Security Number
       </label>
       <input
         type="text"
         id="ssn"
         [value]="formState().ssn"
-        (input)="handleInputChange('ssn', ($any($event.target).value))"
-        placeholder="Enter SSN"
-        class="form-input"
+        (input)="handleSSNInput($any($event.target).value)"
+        placeholder="123-45-6789"
+        maxlength="11"
+        [class]="'form-input ' + (errors().ssn ? 'border-red-500' : '')"
         required
       />
+      <p *ngIf="errors().ssn" class="text-red-500 text-sm mt-1">{{ errors().ssn }}</p>
+      <p *ngIf="!errors().ssn && formState().ssn" class="text-green-600 text-sm mt-1">
+        ✓ SSN format is valid
+      </p>
+      <p class="text-gray-500 text-xs mt-1">Enter your 9-digit Social Security Number</p>
     </div>
     
     <div>
       <label for="birthdate" class="block text-sm font-medium text-gray-700 mb-2">
-        Birthdate
+        Date of Birth
       </label>
       <input
         type="date"
         id="birthdate"
         [value]="formState().birthdate"
         (input)="handleInputChange('birthdate', ($any($event.target).value))"
-        class="form-input"
+        [class]="'form-input ' + (errors().birthdate ? 'border-red-500' : '')"
         required
       />
+      <p *ngIf="errors().birthdate" class="text-red-500 text-sm mt-1">{{ errors().birthdate }}</p>
+      <p *ngIf="!errors().birthdate && formState().birthdate" class="text-green-600 text-sm mt-1">
+        ✓ Birthdate is valid
+      </p>
+      <p class="text-gray-500 text-xs mt-1">You must be at least 18 years old</p>
     </div>
     
-    <button type="submit" class="btn-primary mt-6">
+    <button 
+      type="submit" 
+      class="btn-primary mt-6 w-full"
+      [disabled]="!formState().accountNumber || !formState().ssn || !formState().birthdate"
+    >
       Next
     </button>
   </form>
