@@ -17,7 +17,9 @@
         placeholder="Enter your email"
         [class]="'form-input ' + (errors().email ? 'border-red-500' : '')"
       />
-      <p *ngIf="errors().email" class="text-red-500 text-sm mt-1">{{ errors().email }}</p>
+      @if (errors().email) {
+        <p class="text-red-500 text-sm mt-1">{{ errors().email }}</p>
+      }
     </div>
     
     <div>
@@ -32,7 +34,9 @@
         placeholder="Choose a username"
         [class]="'form-input ' + (errors().username ? 'border-red-500' : '')"
       />
-      <p *ngIf="errors().username" class="text-red-500 text-sm mt-1">{{ errors().username }}</p>
+      @if (errors().username) {
+        <p class="text-red-500 text-sm mt-1">{{ errors().username }}</p>
+      }
     </div>
     
     <div>
@@ -47,7 +51,9 @@
         placeholder="Create a password"
         [class]="'form-input ' + (errors().password ? 'border-red-500' : '')"
       />
-      <p *ngIf="errors().password" class="text-red-500 text-sm mt-1">{{ errors().password }}</p>
+      @if (errors().password) {
+        <p class="text-red-500 text-sm mt-1">{{ errors().password }}</p>
+      }
     </div>
     
     <div>
@@ -62,7 +68,9 @@
         placeholder="Confirm your password"
         [class]="'form-input ' + (errors().confirmPassword ? 'border-red-500' : '')"
       />
-      <p *ngIf="errors().confirmPassword" class="text-red-500 text-sm mt-1">{{ errors().confirmPassword }}</p>
+      @if (errors().confirmPassword) {
+        <p class="text-red-500 text-sm mt-1">{{ errors().confirmPassword }}</p>
+      }
     </div>
     
     <div>
@@ -80,7 +88,9 @@
       <p class="text-xs text-gray-500 mt-1">
         Optional - can be used for two-factor authentication setup later
       </p>
-      <p *ngIf="errors().phoneNumber" class="text-red-500 text-sm mt-1">{{ errors().phoneNumber }}</p>
+      @if (errors().phoneNumber) {
+        <p class="text-red-500 text-sm mt-1">{{ errors().phoneNumber }}</p>
+      }
     </div>
     
     <div class="flex space-x-4 mt-6">

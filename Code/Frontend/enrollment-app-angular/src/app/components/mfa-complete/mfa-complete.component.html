@@ -24,16 +24,20 @@
         
         <div class="bg-gray-50 rounded-lg p-4 mb-6">
           <p class="text-sm text-gray-600">
-            <span *ngIf="mfaResult.mfaVerified">
-              Your account is now protected with two-factor authentication. 
-              You'll need to enter a verification code in addition to your password when signing in.
-              <br><br>
-              You can manage your security settings anytime from your account dashboard.
-            </span>
-            <span *ngIf="!mfaResult.mfaVerified">
-              Your account has been created successfully. 
-              You can set up two-factor authentication later from your account settings for enhanced security.
-            </span>
+            @if (mfaResult.mfaVerified) {
+              <span>
+                Your account is now protected with two-factor authentication. 
+                You'll need to enter a verification code in addition to your password when signing in.
+                <br><br>
+                You can manage your security settings anytime from your account dashboard.
+              </span>
+            }
+            @if (!mfaResult.mfaVerified) {
+              <span>
+                Your account has been created successfully. 
+                You can set up two-factor authentication later from your account settings for enhanced security.
+              </span>
+            }
           </p>
         </div>
         

@@ -1,10 +1,14 @@
-<div *ngIf="currentStep() === 'complete'">
-  <app-mfa-complete [mfaResult]="mfaResult()!"></app-mfa-complete>
-</div>
+@if (currentStep() === 'complete') {
+  <div>
+    <app-mfa-complete [mfaResult]="mfaResult()!"></app-mfa-complete>
+  </div>
+}
 
-<div *ngIf="currentStep() === 'setup'">
-  <app-mfa-setup [userData]="mockUserData" (onComplete)="handleMFAComplete($event)"></app-mfa-setup>
-</div>
+@if (currentStep() === 'setup') {
+  <div>
+    <app-mfa-setup [userData]="mockUserData" (onComplete)="handleMFAComplete($event)"></app-mfa-setup>
+  </div>
+}
 
 <!-- Demo controls -->
 <div class="fixed bottom-4 right-4 bg-white rounded-lg shadow-lg p-4 border">

@@ -19,10 +19,14 @@
         [class]="'form-input ' + (errors().accountNumber ? 'border-red-500' : '')"
         required
       />
-      <p *ngIf="errors().accountNumber" class="text-red-500 text-sm mt-1">{{ errors().accountNumber }}</p>
-      <p *ngIf="!errors().accountNumber && formState().accountNumber" class="text-green-600 text-sm mt-1">
-        ✓ Account number format is valid
-      </p>
+      @if (errors().accountNumber) {
+        <p class="text-red-500 text-sm mt-1">{{ errors().accountNumber }}</p>
+      }
+      @if (!errors().accountNumber && formState().accountNumber) {
+        <p class="text-green-600 text-sm mt-1">
+          ✓ Account number format is valid
+        </p>
+      }
     </div>
     
     <div>
@@ -39,10 +43,14 @@
         [class]="'form-input ' + (errors().ssn ? 'border-red-500' : '')"
         required
       />
-      <p *ngIf="errors().ssn" class="text-red-500 text-sm mt-1">{{ errors().ssn }}</p>
-      <p *ngIf="!errors().ssn && formState().ssn" class="text-green-600 text-sm mt-1">
-        ✓ SSN format is valid
-      </p>
+      @if (errors().ssn) {
+        <p class="text-red-500 text-sm mt-1">{{ errors().ssn }}</p>
+      }
+      @if (!errors().ssn && formState().ssn) {
+        <p class="text-green-600 text-sm mt-1">
+          ✓ SSN format is valid
+        </p>
+      }
       <p class="text-gray-500 text-xs mt-1">Enter your 9-digit Social Security Number</p>
     </div>
     
@@ -58,10 +66,14 @@
         [class]="'form-input ' + (errors().birthdate ? 'border-red-500' : '')"
         required
       />
-      <p *ngIf="errors().birthdate" class="text-red-500 text-sm mt-1">{{ errors().birthdate }}</p>
-      <p *ngIf="!errors().birthdate && formState().birthdate" class="text-green-600 text-sm mt-1">
-        ✓ Birthdate is valid
-      </p>
+      @if (errors().birthdate) {
+        <p class="text-red-500 text-sm mt-1">{{ errors().birthdate }}</p>
+      }
+      @if (!errors().birthdate && formState().birthdate) {
+        <p class="text-green-600 text-sm mt-1">
+          ✓ Birthdate is valid
+        </p>
+      }
       <p class="text-gray-500 text-xs mt-1">You must be at least 18 years old</p>
     </div>
     
