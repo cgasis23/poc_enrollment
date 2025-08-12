@@ -235,6 +235,270 @@ ng serve
 ng build
 ```
 
+## Testing
+
+### Overview
+This project includes comprehensive test coverage using **Jasmine** and **Karma** for the Angular testing framework. The testing approach follows Test-Driven Development (TDD) principles to ensure robust, maintainable code.
+
+### Technologies Used
+- **Jasmine**: JavaScript testing framework for behavior-driven development
+- **Karma**: Test runner that executes tests in real browsers
+- **Angular Testing Utilities**: ComponentFixture, TestBed, By, DebugElement
+
+### Quick Start
+
+#### Run Tests
+```bash
+# Run all tests
+npm test
+
+# Run specific component tests
+ng test --include="**/customer-locate.component.spec.ts"
+
+# Run tests with coverage
+ng test --code-coverage
+
+# Run tests in watch mode
+ng test --watch
+```
+
+#### Test Structure Overview
+```
+customer-locate.component.spec.ts
+├── Component Initialization
+├── Input Handling
+│   ├── handleInputChange
+│   └── handleSSNInput
+├── Validation
+│   ├── validateSSN
+│   ├── validateBirthdate
+│   └── validateForm
+├── Form Submission
+├── Template Integration
+└── Input Event Handling
+```
+
+### Test Coverage
+
+#### Functional Coverage
+- ✅ Component initialization
+- ✅ Input handling and formatting
+- ✅ Validation logic (SSN, birthdate, account number)
+- ✅ Form submission and event emission
+- ✅ Template binding and DOM updates
+- ✅ Error handling and user feedback
+- ✅ Button state management
+
+#### Edge Cases Covered
+- Invalid SSN patterns (000, 666, 900-999, all same digits)
+- Future birthdates and underage validation
+- Account number length validation
+- Empty form submission
+- Input sanitization and formatting
+
+### Testing Patterns & Best Practices
+
+#### 1. Arrange-Act-Assert Pattern
+```typescript
+it('should format account number with spaces every 4 digits', () => {
+  // Arrange
+  const inputValue = '1234567890123456';
+  
+  // Act
+  component.handleInputChange('accountNumber', inputValue);
+  
+  // Assert
+  expect(component.formState().accountNumber).toBe('1234 5678 9012 3456');
+});
+```
+
+#### 2. Testing Angular Signals
+```typescript
+// Set signal value
+component.formState.set({ property: 'new-value' });
+
+// Read signal value
+expect(component.formState().property).toBe('new-value');
+
+// Update signal value
+component.formState.update(prev => ({ ...prev, property: 'updated' }));
+```
+
+#### 3. Testing Event Emitters
+```typescript
+// Spy on emitter
+spyOn(component.onNext, 'emit');
+
+// Trigger event
+component.handleSubmit(mockEvent);
+
+// Verify emission
+expect(component.onNext.emit).toHaveBeenCalledWith(expectedData);
+```
+
+#### 4. DOM Testing
+```typescript
+// Find element by ID
+const element = fixture.debugElement.query(By.css('#elementId'));
+
+// Check element properties
+expect(element.nativeElement.value).toBe('expected-value');
+expect(element.nativeElement.disabled).toBe(true);
+```
+
+### Adding New Tests
+
+#### Component Method Test Template
+```typescript
+describe('MethodName', () => {
+  it('should do something specific', () => {
+    // Arrange
+    const input = 'test-value';
+    
+    // Act
+    component.methodName(input);
+    
+    // Assert
+    expect(component.someProperty).toBe(expectedValue);
+  });
+});
+```
+
+#### Template Binding Test Template
+```typescript
+it('should display correct value in template', () => {
+  // Arrange
+  component.formState.set({ property: 'test-value' });
+  
+  // Act
+  fixture.detectChanges();
+  
+  // Assert
+  const element = fixture.debugElement.query(By.css('#elementId'));
+  expect(element.nativeElement.value).toBe('test-value');
+});
+```
+
+#### Event Handling Test Template
+```typescript
+it('should handle user interaction', () => {
+  // Arrange
+  spyOn(component, 'methodName');
+  const element = fixture.debugElement.query(By.css('#elementId'));
+  
+  // Act
+  element.nativeElement.dispatchEvent(new Event('input'));
+  
+  // Assert
+  expect(component.methodName).toHaveBeenCalled();
+});
+```
+
+### Debugging Tests
+
+#### Common Issues & Solutions
+
+**1. Test Fails with "Cannot read property of undefined"**
+```typescript
+// Problem: Component not properly initialized
+// Solution: Ensure fixture.detectChanges() is called after setup
+fixture.detectChanges();
+```
+
+**2. Signal Value Not Updated**
+```typescript
+// Problem: Signal change not reflected in template
+// Solution: Call fixture.detectChanges() after signal update
+component.formState.set(newValue);
+fixture.detectChanges();
+```
+
+**3. Event Handler Not Called**
+```typescript
+// Problem: Event not properly dispatched
+// Solution: Use proper event type and ensure element exists
+const element = fixture.debugElement.query(By.css('#elementId'));
+element.nativeElement.dispatchEvent(new Event('input'));
+```
+
+### Test Coverage Commands
+
+#### Generate Coverage Report
+```bash
+ng test --code-coverage
+```
+
+#### Coverage Report Location
+```
+coverage/
+├── enrollment-app-angular/
+│   ├── index.html          # Main coverage report
+│   └── customer-locate/    # Component-specific coverage
+```
+
+#### Coverage Metrics to Monitor
+- **Statements**: Percentage of code statements executed
+- **Branches**: Percentage of conditional branches tested
+- **Functions**: Percentage of functions called
+- **Lines**: Percentage of code lines executed
+
+### Continuous Integration
+
+#### GitHub Actions Example
+```yaml
+name: Tests
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - run: npm ci
+      - run: npm test -- --watch=false --browsers=ChromeHeadless
+      - run: npm run test:coverage
+```
+
+### Test Maintenance Checklist
+
+#### Before Committing Code
+- [ ] All tests pass (`npm test`)
+- [ ] New functionality has corresponding tests
+- [ ] Test coverage meets project standards
+- [ ] Tests are readable and well-documented
+- [ ] No test code smells (duplication, complexity)
+
+#### Regular Maintenance
+- [ ] Update tests when component interface changes
+- [ ] Refactor tests for better readability
+- [ ] Add tests for new edge cases discovered
+- [ ] Review and update test documentation
+- [ ] Monitor test execution time and optimize if needed
+
+### Benefits of This Testing Approach
+
+#### 1. **Reliability**
+- Comprehensive validation of business logic
+- Edge case coverage prevents runtime errors
+- Regression testing ensures code changes don't break existing functionality
+
+#### 2. **Maintainability**
+- Clear test structure makes code intent obvious
+- Tests serve as living documentation
+- Easy to refactor with confidence
+
+#### 3. **Development Speed**
+- TDD approach catches issues early
+- Automated testing reduces manual testing time
+- Quick feedback loop for development
+
+#### 4. **Quality Assurance**
+- Consistent behavior across different scenarios
+- Validation of complex business rules
+- User experience validation through template testing
+
 ## Conclusion
 
 This enrollment application demonstrates a **user-centric, security-aware approach** with clear separation of concerns and modular design principles. The thought process prioritizes **identity verification first**, **credential creation second**, and **optional security enhancement third**.
