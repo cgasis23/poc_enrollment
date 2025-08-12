@@ -70,9 +70,9 @@ describe('CustomerLocateComponent', () => {
       it('should clear error when user starts typing', () => {
         // Set an error first
         component.errors.set({ accountNumber: 'Account number is required' });
-        
+
         component.handleInputChange('accountNumber', '1234');
-        
+
         expect(component.errors().accountNumber).toBe('');
       });
     });
@@ -110,9 +110,9 @@ describe('CustomerLocateComponent', () => {
 
       it('should clear SSN error when user starts typing', () => {
         component.errors.set({ ssn: 'SSN is required' });
-        
+
         component.handleSSNInput('123');
-        
+
         expect(component.errors().ssn).toBe('');
       });
     });
@@ -163,7 +163,7 @@ describe('CustomerLocateComponent', () => {
         const validDate = new Date();
         validDate.setFullYear(validDate.getFullYear() - 25);
         const dateString = validDate.toISOString().split('T')[0];
-        
+
         expect(component.validateBirthdate(dateString)).toBe(true);
       });
 
@@ -175,7 +175,7 @@ describe('CustomerLocateComponent', () => {
         const futureDate = new Date();
         futureDate.setFullYear(futureDate.getFullYear() + 1);
         const dateString = futureDate.toISOString().split('T')[0];
-        
+
         expect(component.validateBirthdate(dateString)).toBe(false);
       });
 
@@ -187,7 +187,7 @@ describe('CustomerLocateComponent', () => {
         const youngDate = new Date();
         youngDate.setFullYear(youngDate.getFullYear() - 17);
         const dateString = youngDate.toISOString().split('T')[0];
-        
+
         expect(component.validateBirthdate(dateString)).toBe(false);
       });
 
@@ -195,7 +195,7 @@ describe('CustomerLocateComponent', () => {
         const eighteenYearsAgo = new Date();
         eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18);
         const dateString = eighteenYearsAgo.toISOString().split('T')[0];
-        
+
         expect(component.validateBirthdate(dateString)).toBe(true);
       });
     });
@@ -271,7 +271,7 @@ describe('CustomerLocateComponent', () => {
   describe('Form Submission', () => {
     it('should emit form data on valid submission', () => {
       spyOn(component.onNext, 'emit');
-      
+
       component.formState.set({
         accountNumber: '1234 5678 9012 3456',
         ssn: '123-45-6789',
@@ -292,7 +292,7 @@ describe('CustomerLocateComponent', () => {
 
     it('should not emit on invalid form', () => {
       spyOn(component.onNext, 'emit');
-      
+
       component.formState.set({
         accountNumber: '',
         ssn: '',
@@ -403,7 +403,7 @@ describe('CustomerLocateComponent', () => {
   describe('Input Event Handling', () => {
     it('should handle account number input event', () => {
       spyOn(component, 'handleInputChange');
-      
+
       const accountInput = fixture.debugElement.query(By.css('#accountNumber'));
       accountInput.nativeElement.value = '1234567890123456';
       accountInput.nativeElement.dispatchEvent(new Event('input'));
@@ -413,7 +413,7 @@ describe('CustomerLocateComponent', () => {
 
     it('should handle SSN input event', () => {
       spyOn(component, 'handleSSNInput');
-      
+
       const ssnInput = fixture.debugElement.query(By.css('#ssn'));
       ssnInput.nativeElement.value = '123456789';
       ssnInput.nativeElement.dispatchEvent(new Event('input'));
@@ -423,7 +423,7 @@ describe('CustomerLocateComponent', () => {
 
     it('should handle birthdate input event', () => {
       spyOn(component, 'handleInputChange');
-      
+
       const birthdateInput = fixture.debugElement.query(By.css('#birthdate'));
       birthdateInput.nativeElement.value = '1990-01-01';
       birthdateInput.nativeElement.dispatchEvent(new Event('input'));
@@ -433,7 +433,7 @@ describe('CustomerLocateComponent', () => {
 
     it('should handle form submission event', () => {
       spyOn(component, 'handleSubmit');
-      
+
       const form = fixture.debugElement.query(By.css('form'));
       form.nativeElement.dispatchEvent(new Event('submit'));
 
