@@ -1,102 +1,182 @@
 import { Injectable } from '@angular/core';
 
-interface MFAStoredData {
-  code: string;
-  timestamp: number;
-  attempts: number;
-}
-
-interface MFAResponse {
+interface StrivacityEnrollmentResponse {
   success: boolean;
   message: string;
+  enrollmentUrl?: string;
+  enrollmentId?: string;
+}
+
+interface StrivacityStatusResponse {
+  success: boolean;
+  message: string;
+  isEnrolled: boolean;
+  enrollmentStatus?: 'pending' | 'completed' | 'failed';
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class MFAService {
-  private storedCodes = new Map<string, MFAStoredData>();
-
   constructor() { }
 
-  // Generate a random 6-digit code
-  private generateCode(): string {
-    return Math.floor(100000 + Math.random() * 900000).toString();
+  /**
+   * Complete user enrollment and generate Strivacity MFA setup link
+   * This would typically call your backend API which integrates with Strivacity
+   */
+  async completeEnrollmentAndSetupMFA(userData: {
+    email: string;
+    phoneNumber?: string;
+    accountNumber: string;
+    userId: string;
+  }): Promise<StrivacityEnrollmentResponse> {
+    try {
+      // In a real implementation, this would call your backend API
+      // which would then integrate with Strivacity's API
+      
+      // Mock API call to backend
+      const response = await this.callBackendAPI('/api/enrollment/complete', {
+        method: 'POST',
+        body: JSON.stringify({
+          email: userData.email,
+          phoneNumber: userData.phoneNumber,
+          accountNumber: userData.accountNumber,
+          userId: userData.userId,
+          mfaProvider: 'strivacity'
+        })
+      });
+
+      if (response.success) {
+        return {
+          success: true,
+          message: 'Enrollment completed successfully. You will receive an email with MFA setup instructions.',
+          enrollmentUrl: response.enrollmentUrl,
+          enrollmentId: response.enrollmentId
+        };
+      } else {
+        return {
+          success: false,
+          message: response.message || 'Failed to complete enrollment'
+        };
+      }
+    } catch (error) {
+      console.error('Error completing enrollment:', error);
+      return {
+        success: false,
+        message: 'An error occurred while completing your enrollment. Please try again.'
+      };
+    }
   }
 
-  // Send MFA code via email (mock)
-  async sendEmailCode(email: string): Promise<MFAResponse> {
-    const code = this.generateCode();
-    this.storedCodes.set(email, {
-      code,
-      timestamp: Date.now(),
-      attempts: 0
-    });
-    
-    console.log(`[MOCK] Email sent to ${email} with code: ${code}`);
-    
+  /**
+   * Check if user has completed MFA setup with Strivacity
+   */
+  async checkMFAEnrollmentStatus(enrollmentId: string): Promise<StrivacityStatusResponse> {
+    try {
+      // Mock API call to check enrollment status
+      const response = await this.callBackendAPI(`/api/enrollment/status/${enrollmentId}`, {
+        method: 'GET'
+      });
+
+      return {
+        success: true,
+        message: response.message || 'Status retrieved successfully',
+        isEnrolled: response.isEnrolled || false,
+        enrollmentStatus: response.enrollmentStatus
+      };
+    } catch (error) {
+      console.error('Error checking MFA enrollment status:', error);
+      return {
+        success: false,
+        message: 'Failed to check MFA enrollment status',
+        isEnrolled: false
+      };
+    }
+  }
+
+  /**
+   * Send reminder email for MFA setup
+   */
+  async sendMFAReminder(email: string, enrollmentId: string): Promise<StrivacityEnrollmentResponse> {
+    try {
+      const response = await this.callBackendAPI('/api/enrollment/reminder', {
+        method: 'POST',
+        body: JSON.stringify({
+          email,
+          enrollmentId
+        })
+      });
+
+      return {
+        success: response.success,
+        message: response.success 
+          ? 'MFA setup reminder sent successfully' 
+          : 'Failed to send MFA setup reminder'
+      };
+    } catch (error) {
+      console.error('Error sending MFA reminder:', error);
+      return {
+        success: false,
+        message: 'Failed to send MFA setup reminder'
+      };
+    }
+  }
+
+  /**
+   * Mock backend API call - replace with actual HTTP service
+   */
+  private async callBackendAPI(endpoint: string, options: any): Promise<any> {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    return { success: true, message: 'Code sent to your email' };
+    // Mock responses based on endpoint
+    if (endpoint.includes('/complete')) {
+      return {
+        success: true,
+        enrollmentUrl: 'https://strivacity.yourdomain.com/enroll/abc123',
+        enrollmentId: 'enrollment_abc123',
+        message: 'Enrollment completed successfully'
+      };
+    } else if (endpoint.includes('/status/')) {
+      return {
+        success: true,
+        isEnrolled: false,
+        enrollmentStatus: 'pending',
+        message: 'Enrollment status retrieved'
+      };
+    } else if (endpoint.includes('/reminder')) {
+      return {
+        success: true,
+        message: 'Reminder sent successfully'
+      };
+    }
+    
+    return { success: false, message: 'Unknown endpoint' };
   }
 
-  // Send MFA code via SMS (mock)
-  async sendSMSCode(phoneNumber: string): Promise<MFAResponse> {
-    const code = this.generateCode();
-    this.storedCodes.set(phoneNumber, {
-      code,
-      timestamp: Date.now(),
-      attempts: 0
-    });
-    
-    console.log(`[MOCK] SMS sent to ${phoneNumber} with code: ${code}`);
-    
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    return { success: true, message: 'Code sent to your phone' };
-  }
-
-  // Verify MFA code
-  async verifyCode(identifier: string, code: string): Promise<MFAResponse> {
-    const stored = this.storedCodes.get(identifier);
-    
-    if (!stored) {
-      return { success: false, message: 'No code found. Please request a new code.' };
-    }
-
-    // Check if code is expired (5 minutes)
-    const now = Date.now();
-    const fiveMinutes = 5 * 60 * 1000;
-    if (now - stored.timestamp > fiveMinutes) {
-      this.storedCodes.delete(identifier);
-      return { success: false, message: 'Code has expired. Please request a new code.' };
-    }
-
-    // Check attempts (max 3)
-    if (stored.attempts >= 3) {
-      this.storedCodes.delete(identifier);
-      return { success: false, message: 'Too many attempts. Please request a new code.' };
-    }
-
-    stored.attempts++;
-
-    if (stored.code === code) {
-      this.storedCodes.delete(identifier);
-      return { success: true, message: 'Code verified successfully' };
-    } else {
-      return { success: false, message: 'Invalid code. Please try again.' };
-    }
-  }
-
-  // Check if code exists and is valid
-  hasValidCode(identifier: string): boolean {
-    const stored = this.storedCodes.get(identifier);
-    if (!stored) return false;
-    
-    const now = Date.now();
-    const fiveMinutes = 5 * 60 * 1000;
-    return (now - stored.timestamp <= fiveMinutes) && (stored.attempts < 3);
+  /**
+   * Get Strivacity integration information for documentation
+   */
+  getStrivacityIntegrationInfo() {
+    return {
+      provider: 'Strivacity',
+      description: 'Enterprise-grade MFA and identity verification platform',
+      features: [
+        'Multi-factor authentication',
+        'Identity verification',
+        'Risk-based authentication',
+        'Compliance support (SOC2, GDPR, etc.)',
+        'Customizable enrollment flows',
+        'Analytics and reporting'
+      ],
+      integrationType: 'API-based integration',
+      setupProcess: [
+        'User completes enrollment in your application',
+        'Backend calls Strivacity API to create enrollment',
+        'User receives email with Strivacity enrollment link',
+        'User completes MFA setup in Strivacity portal',
+        'Strivacity notifies your application of completion'
+      ]
+    };
   }
 }

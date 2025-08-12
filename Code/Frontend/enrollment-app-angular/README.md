@@ -84,40 +84,66 @@ validateSSN(ssnDigits: string): boolean {
 ## MFA Integration Strategy
 
 ### Design Philosophy
-The application includes a **separate MFA demo** rather than integrating it into the main flow, demonstrating:
+The application integrates with **Strivacity**, an enterprise-grade MFA and identity verification platform, providing:
 
-1. **Modular Design**: MFA can be enabled/disabled independently
-2. **User Choice**: Customers can opt-in to MFA after enrollment
-3. **Demo Purpose**: Shows MFA capabilities without forcing it
+1. **Enterprise Security**: Professional-grade MFA solution
+2. **Compliance Ready**: SOC2, GDPR, and other compliance standards
+3. **Seamless Integration**: API-based integration with custom enrollment flows
+4. **User Experience**: Dedicated Strivacity portal for MFA setup
 
-### MFA Features
-- **Dual Channel**: Email and SMS options
-- **Security Measures**: 
-  - 6-digit codes
-  - 5-minute expiration
-  - 3-attempt limit
-  - Rate limiting (30-second cooldown)
+### Strivacity Integration Features
+- **Enterprise-Grade MFA**: Multi-factor authentication with multiple options
+- **Identity Verification**: Built-in identity verification capabilities
+- **Risk-Based Authentication**: Adaptive security based on risk assessment
+- **Compliance Support**: SOC2, GDPR, and other regulatory compliance
+- **Customizable Flows**: Tailored enrollment and authentication experiences
+- **Analytics & Reporting**: Comprehensive security analytics
+
+### Integration Flow
+```
+User Enrollment → Backend API → Strivacity API → Email Link → Strivacity Portal → MFA Setup Complete
+```
 
 ### MFA Service Implementation
 ```typescript
-// Key security features
-async verifyCode(identifier: string, code: string): Promise<MFAResponse> {
-  const stored = this.storedCodes.get(identifier);
-  
-  // Check expiration (5 minutes)
-  if (now - stored.timestamp > fiveMinutes) {
-    return { success: false, message: 'Code has expired' };
-  }
-  
-  // Check attempts (max 3)
-  if (stored.attempts >= 3) {
-    return { success: false, message: 'Too many attempts' };
-  }
-  
-  // Verify code
-  if (stored.code === code) {
-    return { success: true, message: 'Code verified successfully' };
-  }
+// Complete enrollment and trigger Strivacity MFA setup
+async completeEnrollmentAndSetupMFA(userData: {
+  email: string;
+  phoneNumber?: string;
+  accountNumber: string;
+  userId: string;
+}): Promise<StrivacityEnrollmentResponse> {
+  // Backend calls Strivacity API to create enrollment
+  const response = await this.callBackendAPI('/api/enrollment/complete', {
+    method: 'POST',
+    body: JSON.stringify({
+      email: userData.email,
+      phoneNumber: userData.phoneNumber,
+      accountNumber: userData.accountNumber,
+      userId: userData.userId,
+      mfaProvider: 'strivacity'
+    })
+  });
+
+  return {
+    success: true,
+    message: 'Enrollment completed. You will receive an email with MFA setup instructions.',
+    enrollmentUrl: response.enrollmentUrl,
+    enrollmentId: response.enrollmentId
+  };
+}
+
+// Check MFA enrollment status
+async checkMFAEnrollmentStatus(enrollmentId: string): Promise<StrivacityStatusResponse> {
+  const response = await this.callBackendAPI(`/api/enrollment/status/${enrollmentId}`, {
+    method: 'GET'
+  });
+
+  return {
+    success: true,
+    isEnrolled: response.isEnrolled,
+    enrollmentStatus: response.enrollmentStatus
+  };
 }
 ```
 
@@ -166,9 +192,10 @@ Step Progression
 
 ### Enrollment Strategy
 1. **Identity First**: Verify existing customer before creating credentials
-2. **Progressive Enhancement**: Basic enrollment + optional MFA
-3. **Flexible MFA**: Can be added later, not required for enrollment
-4. **User-Centric**: Clear progression with minimal friction
+2. **Credential Creation**: Set up online banking credentials
+3. **Strivacity Integration**: Complete enrollment triggers Strivacity MFA setup
+4. **Enterprise Security**: Professional-grade MFA through Strivacity portal
+5. **User-Centric**: Seamless transition to Strivacity for MFA configuration
 
 ### Data Requirements
 - **Minimal Viable Data**: Essential information for account creation
@@ -198,7 +225,7 @@ Step Progression
 ## Potential Improvements
 
 ### Identified Areas for Enhancement
-1. **MFA Integration**: Integrate MFA into main enrollment flow
+1. **Strivacity API Integration**: Implement real Strivacity API calls
 2. **Backend Integration**: Replace mock data with real API calls
 3. **Error Recovery**: Implement retry mechanisms for failed validations
 4. **Data Persistence**: Add form data persistence across page refreshes
@@ -206,6 +233,7 @@ Step Progression
 6. **Internationalization**: Add multi-language support
 7. **Analytics**: Implement user journey tracking
 8. **Testing**: Add comprehensive unit and integration tests
+9. **Strivacity Webhook Handling**: Implement webhooks for enrollment status updates
 
 ### Security Enhancements
 1. **Server-side Validation**: Implement backend validation
