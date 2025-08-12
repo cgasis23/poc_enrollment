@@ -98,7 +98,7 @@ namespace EnrollmentApi.Controllers
         /// <response code="400">If the customer data is invalid or email already exists</response>
         /// <response code="500">If there was an internal server error</response>
         [HttpPost]
-        public async Task<ActionResult<CustomerDto>> CreateCustomer(CreateCustomerDto createDto)
+        public async Task<ActionResult<CustomerDto>> CreateCustomer(CustomerCreateDto createDto)
         {
             try
             {
@@ -122,7 +122,7 @@ namespace EnrollmentApi.Controllers
         /// Update an existing customer
         /// </summary>
         [HttpPut("{id}")]
-        public async Task<ActionResult<CustomerDto>> UpdateCustomer(int id, UpdateCustomerDto updateDto)
+        public async Task<ActionResult<CustomerDto>> UpdateCustomer(int id, CustomerUpdateDto updateDto)
         {
             try
             {

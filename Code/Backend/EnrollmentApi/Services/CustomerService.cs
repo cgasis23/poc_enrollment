@@ -66,7 +66,7 @@ namespace EnrollmentApi.Services
             return customer != null ? MapToDto(customer) : null;
         }
 
-        public async Task<CustomerDto> CreateCustomerAsync(CreateCustomerDto createDto)
+        public async Task<CustomerDto> CreateCustomerAsync(CustomerCreateDto createDto)
         {
             // Check if customer with same email already exists
             if (await CustomerExistsByEmailAsync(createDto.Email))
@@ -95,7 +95,7 @@ namespace EnrollmentApi.Services
             return MapToDto(customer);
         }
 
-        public async Task<CustomerDto?> UpdateCustomerAsync(int id, UpdateCustomerDto updateDto)
+        public async Task<CustomerDto?> UpdateCustomerAsync(int id, CustomerUpdateDto updateDto)
         {
             var customer = await _context.Customers.FindAsync(id);
             if (customer == null)

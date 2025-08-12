@@ -55,6 +55,7 @@ Backend/
 - **MFA Support**: Time-based One-Time Password (TOTP) implementation
 - **Document Management**: Track enrollment documents and notes
 - **Search & Pagination**: Advanced search capabilities
+- **FluentValidation**: Comprehensive input validation with custom rules
 - **In-Memory Database**: Perfect for development and testing
 - **Swagger Documentation**: Interactive API documentation
 

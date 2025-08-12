@@ -198,12 +198,50 @@ dotnet ef database update
 
 The API includes Swagger UI for testing endpoints. Navigate to the root URL to access the interactive documentation.
 
+## Validation
+
+The API uses **FluentValidation** for comprehensive input validation instead of Data Annotations. This provides:
+
+- **Flexible Validation Rules**: Complex validation logic with conditional rules
+- **Custom Error Messages**: User-friendly validation messages
+- **Cross-Property Validation**: Validation rules that depend on multiple properties
+- **Performance**: Better performance compared to Data Annotations
+
+### Validation Rules
+
+#### Customer Creation (`CustomerCreateDto`)
+- **FirstName/LastName**: Required, max 50 chars, letters/spaces/hyphens/apostrophes only
+- **Email**: Required, valid email format, max 100 chars
+- **PhoneNumber**: Required, international phone number format
+- **DateOfBirth**: Required, customer must be at least 13 years old
+- **SSN**: Optional, format XXX-XX-XXXX or XXXXXXXXX
+- **Address Fields**: Optional, with length restrictions
+- **ZipCode**: Optional, format XXXXX or XXXXX-XXXX
+
+#### Customer Update (`CustomerUpdateDto`)
+- **FirstName/LastName**: Optional, same validation as creation
+- **PhoneNumber**: Optional, valid format when provided
+- **DateOfBirth**: Optional, age validation when provided
+- **Status**: Optional, must be valid enum value
+
+#### MFA Operations
+- **CustomerId**: Must be greater than 0
+- **Code**: Required, exactly 6 digits
+
+### Custom Validators
+
+Validators are located in the `Validators/` folder:
+- `CustomerCreateDtoValidator.cs`
+- `CustomerUpdateDtoValidator.cs`
+- `MfaVerifyDtoValidator.cs`
+- `MfaEnableDtoValidator.cs`
+
 ## Security Considerations
 
 - MFA secrets are stored encrypted in the database
 - SSN is stored as optional field (consider encryption for production)
 - CORS is configured for development (restrict for production)
-- Input validation is implemented using Data Annotations
+- Input validation is implemented using FluentValidation with comprehensive rules
 
 ## Production Deployment
 

@@ -2,11 +2,18 @@ using Microsoft.EntityFrameworkCore;
 using EnrollmentApi.Data;
 using EnrollmentApi.Services;
 using System.Reflection;
+using FluentValidation.AspNetCore;
+using EnrollmentApi.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddFluentValidation(fv => 
+    {
+        fv.RegisterValidatorsFromAssemblyContaining<CustomerCreateDtoValidator>();
+        fv.DisableDataAnnotationsValidation = true;
+    });
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

@@ -8,8 +8,8 @@ namespace EnrollmentApi.Services
         Task<IEnumerable<CustomerDto>> GetAllCustomersAsync(CustomerSearchDto? searchDto = null);
         Task<CustomerDto?> GetCustomerByIdAsync(int id);
         Task<CustomerDto?> GetCustomerByEmailAsync(string email);
-        Task<CustomerDto> CreateCustomerAsync(CreateCustomerDto createDto);
-        Task<CustomerDto?> UpdateCustomerAsync(int id, UpdateCustomerDto updateDto);
+        Task<CustomerDto> CreateCustomerAsync(CustomerCreateDto createDto);
+        Task<CustomerDto?> UpdateCustomerAsync(int id, CustomerUpdateDto updateDto);
         Task<bool> DeleteCustomerAsync(int id);
         Task<bool> CustomerExistsAsync(int id);
         Task<bool> CustomerExistsByEmailAsync(string email);
