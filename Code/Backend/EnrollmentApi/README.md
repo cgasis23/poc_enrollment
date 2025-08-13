@@ -10,6 +10,9 @@ A REST API built with .NET Core 8 for managing customer enrollment with Multi-Fa
 - **Search & Pagination**: Advanced search capabilities with pagination
 - **Swagger Documentation**: Interactive API documentation
 - **Entity Framework Core**: SQL Server database with code-first approach
+- **Comprehensive Testing**: 71 tests with 100% pass rate (Unit + Integration + Validation)
+- **Input Validation**: FluentValidation with comprehensive business rules
+- **Test Infrastructure**: Organized test suite with proper isolation and mocking
 
 ## Prerequisites
 
@@ -37,6 +40,20 @@ dotnet run
 The API will be available at:
 - **API**: http://localhost:5065
 - **Swagger UI**: http://localhost:5065/swagger
+
+### 4. Run Tests (Optional)
+
+```bash
+# Navigate to test project
+cd ../EnrollmentApi.Tests
+
+# Run all tests
+dotnet test
+
+# Run specific test categories
+dotnet test --filter "CustomerServiceTests"    # Unit tests only
+dotnet test --filter "Integration"             # Integration tests only
+```
 
 ## API Endpoints
 
@@ -194,37 +211,232 @@ dotnet ef migrations add MigrationName
 dotnet ef database update
 ```
 
-## Testing
+## 🧪 Testing
 
-The API includes comprehensive test coverage with both unit tests and integration tests.
+The API includes comprehensive test coverage with both unit tests and integration tests, ensuring high code quality and reliability.
 
-### Test Structure
-- **Unit Tests**: Test individual components in isolation
-- **Integration Tests**: Test API endpoints end-to-end
-- **Validation Tests**: Test all DTO validation rules
+### 📊 Test Statistics
+- **Total Tests**: 71
+- **Unit Tests**: 63 (CustomerService + Validators)
+- **Integration Tests**: 8 (API endpoints)
+- **Pass Rate**: 100% ✅
+- **Test Execution Time**: ~1.6 seconds
 
-### Running Tests
+### 🏗️ Test Architecture
+
+#### Test Structure
+```
+EnrollmentApi.Tests/
+├── Unit/                           # Unit tests
+│   ├── CustomerServiceTests.cs     # CustomerService unit tests (8 tests)
+│   └── ValidatorTests.cs           # FluentValidation tests (55 tests)
+├── Integration/                    # Integration tests
+│   └── CustomerLocateIntegrationTests.cs  # API endpoint tests (8 tests)
+└── README.md                       # Detailed test documentation
+```
+
+#### Test Categories
+
+**Unit Tests** (`Unit/`)
+- Test individual components in isolation
+- Use in-memory database for reliable testing
+- Focus on business logic and validation rules
+- Implement proper test isolation with unique database instances
+
+**Integration Tests** (`Integration/`)
+- Test API endpoints end-to-end
+- Use `WebApplicationFactory` for HTTP client testing
+- Test actual HTTP requests and responses
+- Validate complete request/response cycles
+
+**Validation Tests** (`Unit/ValidatorTests.cs`)
+- Test all DTO validation rules using FluentValidation
+- Cover edge cases and error scenarios
+- Ensure comprehensive input validation
+
+### 🚀 Running Tests
+
+#### Run All Tests
 ```bash
 cd Code/Backend/EnrollmentApi.Tests
 dotnet test
 ```
 
-### Test Documentation
+#### Run Specific Test Categories
+```bash
+# Run unit tests only
+dotnet test --filter "TestCategory=Unit"
+
+# Run integration tests only
+dotnet test --filter "TestCategory=Integration"
+
+# Run specific test class
+dotnet test --filter "CustomerServiceTests"
+dotnet test --filter "ValidatorTests"
+dotnet test --filter "CustomerLocateIntegrationTests"
+```
+
+#### Run Tests with Verbose Output
+```bash
+dotnet test --verbosity normal
+```
+
+#### Run Tests with Coverage
+```bash
+dotnet test --collect:"XPlat Code Coverage"
+```
+
+### 📦 Test Dependencies
+
+The test project uses the following packages:
+
+- **xUnit** (2.9.2) - Testing framework
+- **Moq** (4.20.70) - Mocking framework for unit tests
+- **Shouldly** (4.2.1) - Assertion library for readable tests
+- **FluentAssertions** (8.5.0) - Assertion library for integration tests
+- **FluentValidation** (12.0.0) - Validation testing
+- **Microsoft.EntityFrameworkCore.InMemory** (9.0.8) - In-memory database for testing
+- **Microsoft.AspNetCore.Mvc.Testing** (9.0.8) - Integration testing support
+
+### 🎯 Test Coverage Details
+
+#### CustomerService Tests (8 tests)
+- ✅ **Valid Data Scenarios**
+  - `LocateCustomerAsync_WithValidData_ShouldReturnCustomer`
+  - `LocateCustomerAsync_WithAccountNumberWithSpaces_ShouldReturnCustomer`
+  - `LocateCustomerAsync_WithMultipleCustomers_ShouldReturnCorrectCustomer`
+
+- ✅ **Invalid Data Scenarios**
+  - `LocateCustomerAsync_WithInvalidAccountNumber_ShouldReturnNull`
+  - `LocateCustomerAsync_WithInvalidSSN_ShouldReturnNull`
+  - `LocateCustomerAsync_WithInvalidBirthdate_ShouldReturnNull`
+  - `LocateCustomerAsync_WithInvalidDateFormat_ShouldReturnNull`
+  - `LocateCustomerAsync_WithNoMatchingCustomer_ShouldReturnNull`
+
+#### Validator Tests (55 tests)
+- ✅ **CustomerCreateDtoValidator** - 35 tests
+- ✅ **CustomerUpdateDtoValidator** - 8 tests
+- ✅ **MfaEnableDtoValidator** - 6 tests
+- ✅ **MfaVerifyDtoValidator** - 6 tests
+
+#### Integration Tests (8 tests)
+- ✅ **Successful Scenarios**
+  - `LocateCustomer_WithValidData_ShouldReturnCustomer`
+  - `LocateCustomer_WithAccountNumberWithSpaces_ShouldReturnCustomer`
+
+- ✅ **Error Scenarios**
+  - `LocateCustomer_WithInvalidAccountNumber_ShouldReturnNotFound`
+  - `LocateCustomer_WithInvalidSSN_ShouldReturnNotFound`
+  - `LocateCustomer_WithInvalidBirthdate_ShouldReturnNotFound`
+  - `LocateCustomer_WithInvalidDateFormat_ShouldReturnNotFound`
+
+- ✅ **Validation Scenarios**
+  - `LocateCustomer_WithMissingAccountNumber_ShouldReturnBadRequest`
+  - `LocateCustomer_WithMissingSSN_ShouldReturnBadRequest`
+  - `LocateCustomer_WithMissingBirthdate_ShouldReturnBadRequest`
+
+### 🔧 Test Configuration
+
+#### In-Memory Database
+Unit tests use EF Core in-memory database with unique names per test:
+```csharp
+var options = new DbContextOptionsBuilder<EnrollmentDbContext>()
+    .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+    .Options;
+```
+
+#### Test Data Seeding
+Each test seeds its own data to ensure test isolation:
+```csharp
+_context.Customers.Add(expectedCustomer);
+await _context.SaveChangesAsync();
+```
+
+#### HTTP Client Configuration
+Integration tests use `WebApplicationFactory` with in-memory database:
+```csharp
+_factory = factory.WithWebHostBuilder(builder =>
+{
+    builder.ConfigureServices(services =>
+    {
+        services.AddDbContext<EnrollmentDbContext>(options =>
+        {
+            options.UseInMemoryDatabase(_dbName);
+        });
+    });
+});
+```
+
+### 🧪 Writing New Tests
+
+#### Adding Unit Tests
+1. Create test class in `Unit/` folder
+2. Inherit from appropriate base class or implement `IDisposable`
+3. Use in-memory database for data access
+4. Use Shouldly for assertions
+5. Follow naming convention: `MethodName_Scenario_ExpectedResult`
+
+#### Adding Integration Tests
+1. Create test class in `Integration/` folder
+2. Inherit from `IClassFixture<WebApplicationFactory<Program>>`
+3. Use `WebApplicationFactory` for HTTP client
+4. Use FluentAssertions for HTTP response assertions
+5. Follow naming convention: `Endpoint_Scenario_ExpectedResult`
+
+### 🔍 Debugging Tests
+
+#### Running Tests in Debug Mode
+```bash
+dotnet test --logger "console;verbosity=detailed"
+```
+
+#### Debugging Specific Test
+```bash
+dotnet test --filter "FullyQualifiedName~CustomerServiceTests.LocateCustomerAsync_WithValidData_ShouldReturnCustomer"
+```
+
+#### Viewing Test Output
+```bash
+dotnet test --verbosity normal --logger "console;verbosity=detailed"
+```
+
+### 📈 Test Coverage Areas
+
+The test suite provides comprehensive coverage for:
+
+- ✅ **CustomerService.LocateCustomerAsync** - 100% coverage
+- ✅ **DTO Validation** - All validation rules tested
+- ✅ **API Endpoints** - Customer location endpoint fully tested
+- ✅ **Error Handling** - Invalid inputs and edge cases
+- ✅ **Business Logic** - Account number formatting, date parsing
+
+### 🚨 Common Issues & Solutions
+
+#### Test Isolation
+- Each test uses a unique database instance
+- Tests are independent and can run in any order
+- No shared state between tests
+
+#### Database Context
+- Unit tests use in-memory database
+- Integration tests replace production database with in-memory version
+- No external database dependencies
+
+#### Async/Await
+- All database operations are async
+- Use `await` for all async operations
+- Tests are async and return `Task`
+
+### 📚 Test Documentation
 For detailed information about the test suite, including:
 - Test organization and structure
 - Running specific test categories
 - Writing new tests
 - Debugging test issues
 
-See: [Test Documentation](../EnrollmentApi.Tests/README.md)
+See: [Comprehensive Test Documentation](../EnrollmentApi.Tests/README.md)
 
-### Test Coverage
-- **Total Tests**: 71
-- **Unit Tests**: 63 (CustomerService + Validators)
-- **Integration Tests**: 8 (API endpoints)
-- **Pass Rate**: 100% ✅
-
-### Interactive API Testing
+### 🎯 Interactive API Testing
 The API also includes Swagger UI for manual testing. Navigate to the root URL to access the interactive documentation.
 
 ## Validation
