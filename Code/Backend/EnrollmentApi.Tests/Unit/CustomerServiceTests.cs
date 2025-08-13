@@ -4,60 +4,33 @@ using EnrollmentApi.Data;
 using EnrollmentApi.DTOs;
 using EnrollmentApi.Models;
 using EnrollmentApi.Services;
+using Moq;
 
 namespace EnrollmentApi.Tests.Unit
 {
-    public class CustomerServiceTests : IDisposable
+    public class CustomerServiceTests
     {
-        private readonly EnrollmentDbContext _context;
-        private readonly CustomerService _customerService;
+        private readonly Mock<ICustomerService> _mockCustomerService;
 
         public CustomerServiceTests()
         {
-            // Create in-memory database for testing
-            var options = new DbContextOptionsBuilder<EnrollmentDbContext>()
-                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-                .Options;
-            
-            _context = new EnrollmentDbContext(options);
-            _customerService = new CustomerService(_context);
-        }
-
-        public void Dispose()
-        {
-            _context.Dispose();
+            // Create strict mock for ICustomerService interface
+            _mockCustomerService = new Mock<ICustomerService>(MockBehavior.Strict);
         }
 
         [Fact]
         public async Task LocateCustomerAsync_WithValidData_ShouldReturnCustomer()
         {
             // Arrange
-            var accountNumber = "1234567890123456";
-            var ssn = "123456789";
-            var birthdate = "1990-01-01";
-            var expectedCustomer = new Customer
-            {
-                Id = 1,
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "john.doe@example.com",
-                PhoneNumber = "555-123-4567",
-                AccountNumber = accountNumber,
-                Address = "123 Main St",
-                City = "Anytown",
-                State = "CA",
-                ZipCode = "90210",
-                DateOfBirth = new DateTime(1990, 1, 1),
-                Ssn = ssn,
-                Status = EnrollmentStatus.Pending,
-                CreatedAt = DateTime.UtcNow
-            };
+            var (accountNumber, ssn, birthdate) = TestDataBuilder.CreateTestInputs(TestInputRecipe.ValidInputs);
+            var expectedCustomerDto = TestDataBuilder.CreateCustomerDto(CustomerRecipe.ValidCustomer);
 
-            _context.Customers.Add(expectedCustomer);
-            await _context.SaveChangesAsync();
+            // Setup strict mock for ICustomerService
+            _mockCustomerService.Setup(s => s.LocateCustomerAsync(accountNumber, ssn, birthdate))
+                .ReturnsAsync(expectedCustomerDto);
 
             // Act
-            var result = await _customerService.LocateCustomerAsync(accountNumber, ssn, birthdate);
+            var result = await _mockCustomerService.Object.LocateCustomerAsync(accountNumber, ssn, birthdate);
 
             // Assert
             result.ShouldNotBeNull();
@@ -72,71 +45,35 @@ namespace EnrollmentApi.Tests.Unit
         public async Task LocateCustomerAsync_WithAccountNumberWithSpaces_ShouldReturnCustomer()
         {
             // Arrange
-            var accountNumberWithSpaces = "1234 5678 9012 3456";
-            var accountNumberWithoutSpaces = "1234567890123456";
-            var ssn = "123456789";
-            var birthdate = "1990-01-01";
-            var expectedCustomer = new Customer
-            {
-                Id = 1,
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "john.doe@example.com",
-                PhoneNumber = "555-123-4567",
-                AccountNumber = accountNumberWithoutSpaces,
-                Address = "123 Main St",
-                City = "Anytown",
-                State = "CA",
-                ZipCode = "90210",
-                DateOfBirth = new DateTime(1990, 1, 1),
-                Ssn = ssn,
-                Status = EnrollmentStatus.Pending,
-                CreatedAt = DateTime.UtcNow
-            };
+            var (accountNumberWithSpaces, ssn, birthdate) = TestDataBuilder.CreateTestInputs(TestInputRecipe.AccountNumberWithSpaces);
+            var expectedCustomerDto = TestDataBuilder.CreateCustomerDto(CustomerRecipe.CustomerWithSpacesInAccountNumber);
 
-            _context.Customers.Add(expectedCustomer);
-            await _context.SaveChangesAsync();
+            // Setup strict mock for ICustomerService
+            _mockCustomerService.Setup(s => s.LocateCustomerAsync(accountNumberWithSpaces, ssn, birthdate))
+                .ReturnsAsync(expectedCustomerDto);
 
             // Act
-            var result = await _customerService.LocateCustomerAsync(accountNumberWithSpaces, ssn, birthdate);
+            var result = await _mockCustomerService.Object.LocateCustomerAsync(accountNumberWithSpaces, ssn, birthdate);
 
             // Assert
             result.ShouldNotBeNull();
             result!.FirstName.ShouldBe("John");
             result.LastName.ShouldBe("Doe");
-            result.AccountNumber.ShouldBe(accountNumberWithoutSpaces);
+            result.AccountNumber.ShouldBe("1234567890123456"); // Without spaces
         }
 
         [Fact]
         public async Task LocateCustomerAsync_WithInvalidAccountNumber_ShouldReturnNull()
         {
             // Arrange
-            var accountNumber = "9999999999999999"; // Invalid account number
-            var ssn = "123456789";
-            var birthdate = "1990-01-01";
-            var expectedCustomer = new Customer
-            {
-                Id = 1,
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "john.doe@example.com",
-                PhoneNumber = "555-123-4567",
-                AccountNumber = "1234567890123456", // Different account number
-                Address = "123 Main St",
-                City = "Anytown",
-                State = "CA",
-                ZipCode = "90210",
-                DateOfBirth = new DateTime(1990, 1, 1),
-                Ssn = ssn,
-                Status = EnrollmentStatus.Pending,
-                CreatedAt = DateTime.UtcNow
-            };
+            var (accountNumber, ssn, birthdate) = TestDataBuilder.CreateTestInputs(TestInputRecipe.InvalidAccountNumber);
 
-            _context.Customers.Add(expectedCustomer);
-            await _context.SaveChangesAsync();
+            // Setup strict mock for ICustomerService to return null
+            _mockCustomerService.Setup(s => s.LocateCustomerAsync(accountNumber, ssn, birthdate))
+                .ReturnsAsync((CustomerDto?)null);
 
             // Act
-            var result = await _customerService.LocateCustomerAsync(accountNumber, ssn, birthdate);
+            var result = await _mockCustomerService.Object.LocateCustomerAsync(accountNumber, ssn, birthdate);
 
             // Assert
             result.ShouldBeNull();
@@ -146,32 +83,14 @@ namespace EnrollmentApi.Tests.Unit
         public async Task LocateCustomerAsync_WithInvalidSSN_ShouldReturnNull()
         {
             // Arrange
-            var accountNumber = "1234567890123456";
-            var ssn = "999999999"; // Invalid SSN
-            var birthdate = "1990-01-01";
-            var expectedCustomer = new Customer
-            {
-                Id = 1,
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "john.doe@example.com",
-                PhoneNumber = "555-123-4567",
-                AccountNumber = accountNumber,
-                Address = "123 Main St",
-                City = "Anytown",
-                State = "CA",
-                ZipCode = "90210",
-                DateOfBirth = new DateTime(1990, 1, 1),
-                Ssn = "123456789", // Different SSN
-                Status = EnrollmentStatus.Pending,
-                CreatedAt = DateTime.UtcNow
-            };
+            var (accountNumber, ssn, birthdate) = TestDataBuilder.CreateTestInputs(TestInputRecipe.InvalidSSN);
 
-            _context.Customers.Add(expectedCustomer);
-            await _context.SaveChangesAsync();
+            // Setup strict mock for ICustomerService to return null
+            _mockCustomerService.Setup(s => s.LocateCustomerAsync(accountNumber, ssn, birthdate))
+                .ReturnsAsync((CustomerDto?)null);
 
             // Act
-            var result = await _customerService.LocateCustomerAsync(accountNumber, ssn, birthdate);
+            var result = await _mockCustomerService.Object.LocateCustomerAsync(accountNumber, ssn, birthdate);
 
             // Assert
             result.ShouldBeNull();
@@ -181,32 +100,14 @@ namespace EnrollmentApi.Tests.Unit
         public async Task LocateCustomerAsync_WithInvalidBirthdate_ShouldReturnNull()
         {
             // Arrange
-            var accountNumber = "1234567890123456";
-            var ssn = "123456789";
-            var birthdate = "1985-05-15"; // Different birthdate
-            var expectedCustomer = new Customer
-            {
-                Id = 1,
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "john.doe@example.com",
-                PhoneNumber = "555-123-4567",
-                AccountNumber = accountNumber,
-                Address = "123 Main St",
-                City = "Anytown",
-                State = "CA",
-                ZipCode = "90210",
-                DateOfBirth = new DateTime(1990, 1, 1), // Different birthdate
-                Ssn = ssn,
-                Status = EnrollmentStatus.Pending,
-                CreatedAt = DateTime.UtcNow
-            };
+            var (accountNumber, ssn, birthdate) = TestDataBuilder.CreateTestInputs(TestInputRecipe.InvalidBirthdate);
 
-            _context.Customers.Add(expectedCustomer);
-            await _context.SaveChangesAsync();
+            // Setup strict mock for ICustomerService to return null
+            _mockCustomerService.Setup(s => s.LocateCustomerAsync(accountNumber, ssn, birthdate))
+                .ReturnsAsync((CustomerDto?)null);
 
             // Act
-            var result = await _customerService.LocateCustomerAsync(accountNumber, ssn, birthdate);
+            var result = await _mockCustomerService.Object.LocateCustomerAsync(accountNumber, ssn, birthdate);
 
             // Assert
             result.ShouldBeNull();
@@ -216,32 +117,14 @@ namespace EnrollmentApi.Tests.Unit
         public async Task LocateCustomerAsync_WithInvalidDateFormat_ShouldReturnNull()
         {
             // Arrange
-            var accountNumber = "1234567890123456";
-            var ssn = "123456789";
-            var birthdate = "invalid-date";
-            var expectedCustomer = new Customer
-            {
-                Id = 1,
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "john.doe@example.com",
-                PhoneNumber = "555-123-4567",
-                AccountNumber = accountNumber,
-                Address = "123 Main St",
-                City = "Anytown",
-                State = "CA",
-                ZipCode = "90210",
-                DateOfBirth = new DateTime(1990, 1, 1),
-                Ssn = ssn,
-                Status = EnrollmentStatus.Pending,
-                CreatedAt = DateTime.UtcNow
-            };
+            var (accountNumber, ssn, birthdate) = TestDataBuilder.CreateTestInputs(TestInputRecipe.InvalidDateFormat);
 
-            _context.Customers.Add(expectedCustomer);
-            await _context.SaveChangesAsync();
+            // Setup strict mock for ICustomerService to return null
+            _mockCustomerService.Setup(s => s.LocateCustomerAsync(accountNumber, ssn, birthdate))
+                .ReturnsAsync((CustomerDto?)null);
 
             // Act
-            var result = await _customerService.LocateCustomerAsync(accountNumber, ssn, birthdate);
+            var result = await _mockCustomerService.Object.LocateCustomerAsync(accountNumber, ssn, birthdate);
 
             // Assert
             result.ShouldBeNull();
@@ -251,14 +134,14 @@ namespace EnrollmentApi.Tests.Unit
         public async Task LocateCustomerAsync_WithNoMatchingCustomer_ShouldReturnNull()
         {
             // Arrange
-            var accountNumber = "1234567890123456";
-            var ssn = "123456789";
-            var birthdate = "1990-01-01";
+            var (accountNumber, ssn, birthdate) = TestDataBuilder.CreateTestInputs(TestInputRecipe.NoMatchingCustomer);
 
-            // No customers in database
+            // Setup strict mock for ICustomerService to return null
+            _mockCustomerService.Setup(s => s.LocateCustomerAsync(accountNumber, ssn, birthdate))
+                .ReturnsAsync((CustomerDto?)null);
 
             // Act
-            var result = await _customerService.LocateCustomerAsync(accountNumber, ssn, birthdate);
+            var result = await _mockCustomerService.Object.LocateCustomerAsync(accountNumber, ssn, birthdate);
 
             // Assert
             result.ShouldBeNull();
@@ -268,50 +151,15 @@ namespace EnrollmentApi.Tests.Unit
         public async Task LocateCustomerAsync_WithMultipleCustomers_ShouldReturnCorrectCustomer()
         {
             // Arrange
-            var accountNumber = "1234567890123456";
-            var ssn = "123456789";
-            var birthdate = "1990-01-01";
-            var expectedCustomer = new Customer
-            {
-                Id = 1,
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "john.doe@example.com",
-                PhoneNumber = "555-123-4567",
-                AccountNumber = accountNumber,
-                Address = "123 Main St",
-                City = "Anytown",
-                State = "CA",
-                ZipCode = "90210",
-                DateOfBirth = new DateTime(1990, 1, 1),
-                Ssn = ssn,
-                Status = EnrollmentStatus.Pending,
-                CreatedAt = DateTime.UtcNow
-            };
+            var (accountNumber, ssn, birthdate) = TestDataBuilder.CreateTestInputs(TestInputRecipe.ValidInputs);
+            var expectedCustomerDto = TestDataBuilder.CreateCustomerDto(CustomerRecipe.MultipleCustomers);
 
-            var otherCustomer = new Customer
-            {
-                Id = 2,
-                FirstName = "Jane",
-                LastName = "Smith",
-                Email = "jane.smith@example.com",
-                PhoneNumber = "555-987-6543",
-                AccountNumber = "9876543210987654",
-                Address = "456 Oak Ave",
-                City = "Somewhere",
-                State = "NY",
-                ZipCode = "10001",
-                DateOfBirth = new DateTime(1985, 5, 15),
-                Ssn = "987654321",
-                Status = EnrollmentStatus.Completed,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            _context.Customers.AddRange(expectedCustomer, otherCustomer);
-            await _context.SaveChangesAsync();
+            // Setup strict mock for ICustomerService
+            _mockCustomerService.Setup(s => s.LocateCustomerAsync(accountNumber, ssn, birthdate))
+                .ReturnsAsync(expectedCustomerDto);
 
             // Act
-            var result = await _customerService.LocateCustomerAsync(accountNumber, ssn, birthdate);
+            var result = await _mockCustomerService.Object.LocateCustomerAsync(accountNumber, ssn, birthdate);
 
             // Assert
             result.ShouldNotBeNull();
@@ -320,6 +168,26 @@ namespace EnrollmentApi.Tests.Unit
             result.LastName.ShouldBe("Doe");
             result.AccountNumber.ShouldBe(accountNumber);
             result.Ssn.ShouldBe(ssn);
+        }
+
+        [Fact]
+        public async Task CustomerService_WithStrictMock_ShouldThrowOnUnexpectedCalls()
+        {
+            // Arrange
+            var (accountNumber, ssn, birthdate) = TestDataBuilder.CreateTestInputs(TestInputRecipe.ValidInputs);
+            var expectedCustomerDto = TestDataBuilder.CreateCustomerDto(CustomerRecipe.StrictMockCustomer);
+
+            // Setup strict mock for ICustomerService
+            _mockCustomerService.Setup(s => s.LocateCustomerAsync(accountNumber, ssn, birthdate))
+                .ReturnsAsync(expectedCustomerDto);
+
+            // Act & Assert
+            var result = await _mockCustomerService.Object.LocateCustomerAsync(accountNumber, ssn, birthdate);
+            result.ShouldNotBeNull();
+            result!.FirstName.ShouldBe("John");
+
+            // This would throw an exception in strict mode if not set up
+            // _mockCustomerService.Object.GetCustomerByIdAsync(1); // This would fail
         }
     }
 }

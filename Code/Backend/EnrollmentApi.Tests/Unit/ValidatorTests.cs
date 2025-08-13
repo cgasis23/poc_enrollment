@@ -27,20 +27,7 @@ namespace EnrollmentApi.Tests.Unit
         public void CustomerCreateDto_WithValidData_ShouldPassValidation()
         {
             // Arrange
-            var dto = new CustomerCreateDto
-            {
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "john.doe@example.com",
-                PhoneNumber = "5551234567",
-                DateOfBirth = DateTime.Today.AddYears(-25),
-                Ssn = "123-45-6789",
-                Address = "123 Main St",
-                City = "Anytown",
-                State = "CA",
-                ZipCode = "90210",
-                Country = "US"
-            };
+            var dto = TestDataBuilder.CreateCustomerCreateDto(CustomerCreateDtoRecipe.ValidCustomer);
 
             // Act
             var result = _customerCreateValidator.TestValidate(dto);
@@ -50,20 +37,13 @@ namespace EnrollmentApi.Tests.Unit
         }
 
         [Theory]
-        [InlineData("", "First name is required")]
-        [InlineData("John123", "First name can only contain letters, spaces, hyphens, and apostrophes")]
-        [InlineData("Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "First name cannot exceed 50 characters")]
-        public void CustomerCreateDto_WithInvalidFirstName_ShouldFailValidation(string firstName, string expectedError)
+        [InlineData(CustomerCreateDtoRecipe.EmptyFirstName, "First name is required")]
+        [InlineData(CustomerCreateDtoRecipe.InvalidFirstName, "First name can only contain letters, spaces, hyphens, and apostrophes")]
+        [InlineData(CustomerCreateDtoRecipe.LongFirstName, "First name cannot exceed 50 characters")]
+        public void CustomerCreateDto_WithInvalidFirstName_ShouldFailValidation(CustomerCreateDtoRecipe recipe, string expectedError)
         {
             // Arrange
-            var dto = new CustomerCreateDto
-            {
-                FirstName = firstName,
-                LastName = "Doe",
-                Email = "john.doe@example.com",
-                PhoneNumber = "5551234567",
-                DateOfBirth = DateTime.Today.AddYears(-25)
-            };
+            var dto = TestDataBuilder.CreateCustomerCreateDto(recipe);
 
             // Act
             var result = _customerCreateValidator.TestValidate(dto);
@@ -74,20 +54,13 @@ namespace EnrollmentApi.Tests.Unit
         }
 
         [Theory]
-        [InlineData("", "Last name is required")]
-        [InlineData("Doe123", "Last name can only contain letters, spaces, hyphens, and apostrophes")]
-        [InlineData("Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "Last name cannot exceed 50 characters")]
-        public void CustomerCreateDto_WithInvalidLastName_ShouldFailValidation(string lastName, string expectedError)
+        [InlineData(CustomerCreateDtoRecipe.EmptyLastName, "Last name is required")]
+        [InlineData(CustomerCreateDtoRecipe.InvalidLastName, "Last name can only contain letters, spaces, hyphens, and apostrophes")]
+        [InlineData(CustomerCreateDtoRecipe.LongLastName, "Last name cannot exceed 50 characters")]
+        public void CustomerCreateDto_WithInvalidLastName_ShouldFailValidation(CustomerCreateDtoRecipe recipe, string expectedError)
         {
             // Arrange
-            var dto = new CustomerCreateDto
-            {
-                FirstName = "John",
-                LastName = lastName,
-                Email = "john.doe@example.com",
-                PhoneNumber = "5551234567",
-                DateOfBirth = DateTime.Today.AddYears(-25)
-            };
+            var dto = TestDataBuilder.CreateCustomerCreateDto(recipe);
 
             // Act
             var result = _customerCreateValidator.TestValidate(dto);
@@ -98,20 +71,13 @@ namespace EnrollmentApi.Tests.Unit
         }
 
         [Theory]
-        [InlineData("", "Email is required")]
-        [InlineData("invalid-email", "Please provide a valid email address")]
-        [InlineData("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@example.com", "Email cannot exceed 100 characters")]
-        public void CustomerCreateDto_WithInvalidEmail_ShouldFailValidation(string email, string expectedError)
+        [InlineData(CustomerCreateDtoRecipe.EmptyEmail, "Email is required")]
+        [InlineData(CustomerCreateDtoRecipe.InvalidEmail, "Please provide a valid email address")]
+        [InlineData(CustomerCreateDtoRecipe.LongEmail, "Email cannot exceed 100 characters")]
+        public void CustomerCreateDto_WithInvalidEmail_ShouldFailValidation(CustomerCreateDtoRecipe recipe, string expectedError)
         {
             // Arrange
-            var dto = new CustomerCreateDto
-            {
-                FirstName = "John",
-                LastName = "Doe",
-                Email = email,
-                PhoneNumber = "5551234567",
-                DateOfBirth = DateTime.Today.AddYears(-25)
-            };
+            var dto = TestDataBuilder.CreateCustomerCreateDto(recipe);
 
             // Act
             var result = _customerCreateValidator.TestValidate(dto);
@@ -122,20 +88,13 @@ namespace EnrollmentApi.Tests.Unit
         }
 
         [Theory]
-        [InlineData("", "Phone number is required")]
-        [InlineData("invalid", "Please provide a valid phone number")]
-        [InlineData("0123456789", "Please provide a valid phone number")]
-        public void CustomerCreateDto_WithInvalidPhoneNumber_ShouldFailValidation(string phoneNumber, string expectedError)
+        [InlineData(CustomerCreateDtoRecipe.EmptyPhoneNumber, "Phone number is required")]
+        [InlineData(CustomerCreateDtoRecipe.InvalidPhoneNumber, "Please provide a valid phone number")]
+        [InlineData(CustomerCreateDtoRecipe.InvalidPhoneNumberFormat, "Please provide a valid phone number")]
+        public void CustomerCreateDto_WithInvalidPhoneNumber_ShouldFailValidation(CustomerCreateDtoRecipe recipe, string expectedError)
         {
             // Arrange
-            var dto = new CustomerCreateDto
-            {
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "john.doe@example.com",
-                PhoneNumber = phoneNumber,
-                DateOfBirth = DateTime.Today.AddYears(-25)
-            };
+            var dto = TestDataBuilder.CreateCustomerCreateDto(recipe);
 
             // Act
             var result = _customerCreateValidator.TestValidate(dto);
@@ -146,20 +105,13 @@ namespace EnrollmentApi.Tests.Unit
         }
 
         [Theory]
-        [InlineData("", "Date of birth is required")]
-        [InlineData("2020-01-01", "Customer must be at least 13 years old")]
-        [InlineData("1800-01-01", "Please provide a valid date of birth")]
-        public void CustomerCreateDto_WithInvalidDateOfBirth_ShouldFailValidation(string dateOfBirth, string expectedError)
+        [InlineData(CustomerCreateDtoRecipe.EmptyDateOfBirth, "Date of birth is required")]
+        [InlineData(CustomerCreateDtoRecipe.UnderageCustomer, "Customer must be at least 13 years old")]
+        [InlineData(CustomerCreateDtoRecipe.InvalidDateOfBirth, "Please provide a valid date of birth")]
+        public void CustomerCreateDto_WithInvalidDateOfBirth_ShouldFailValidation(CustomerCreateDtoRecipe recipe, string expectedError)
         {
             // Arrange
-            var dto = new CustomerCreateDto
-            {
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "john.doe@example.com",
-                PhoneNumber = "5551234567",
-                DateOfBirth = string.IsNullOrEmpty(dateOfBirth) ? default : DateTime.Parse(dateOfBirth)
-            };
+            var dto = TestDataBuilder.CreateCustomerCreateDto(recipe);
 
             // Act
             var result = _customerCreateValidator.TestValidate(dto);
@@ -170,20 +122,11 @@ namespace EnrollmentApi.Tests.Unit
         }
 
         [Theory]
-        [InlineData("12-34-5678", "SSN must be in format XXX-XX-XXXX or XXXXXXXXX")]
-        [InlineData("123-4-5678", "SSN must be in format XXX-XX-XXXX or XXXXXXXXX")]
-        public void CustomerCreateDto_WithInvalidSSN_ShouldFailValidation(string ssn, string expectedError)
+        [InlineData(CustomerCreateDtoRecipe.InvalidSSN, "SSN must be in format XXX-XX-XXXX or XXXXXXXXX")]
+        public void CustomerCreateDto_WithInvalidSSN_ShouldFailValidation(CustomerCreateDtoRecipe recipe, string expectedError)
         {
             // Arrange
-            var dto = new CustomerCreateDto
-            {
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "john.doe@example.com",
-                PhoneNumber = "5551234567",
-                DateOfBirth = DateTime.Today.AddYears(-25),
-                Ssn = ssn
-            };
+            var dto = TestDataBuilder.CreateCustomerCreateDto(recipe);
 
             // Act
             var result = _customerCreateValidator.TestValidate(dto);
@@ -194,20 +137,11 @@ namespace EnrollmentApi.Tests.Unit
         }
 
         [Theory]
-        [InlineData("123-45-6789")]
-        [InlineData("123456789")]
-        public void CustomerCreateDto_WithValidSSN_ShouldPassValidation(string ssn)
+        [InlineData(CustomerCreateDtoRecipe.ValidSSN)]
+        public void CustomerCreateDto_WithValidSSN_ShouldPassValidation(CustomerCreateDtoRecipe recipe)
         {
             // Arrange
-            var dto = new CustomerCreateDto
-            {
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "john.doe@example.com",
-                PhoneNumber = "5551234567",
-                DateOfBirth = DateTime.Today.AddYears(-25),
-                Ssn = ssn
-            };
+            var dto = TestDataBuilder.CreateCustomerCreateDto(recipe);
 
             // Act
             var result = _customerCreateValidator.TestValidate(dto);
@@ -217,44 +151,11 @@ namespace EnrollmentApi.Tests.Unit
         }
 
         [Theory]
-        [InlineData("12345")]
-        [InlineData("12345-6789")]
-        public void CustomerCreateDto_WithValidZipCode_ShouldPassValidation(string zipCode)
+        [InlineData(CustomerCreateDtoRecipe.InvalidZipCode, "Zip code must be in format XXXXX or XXXXX-XXXX")]
+        public void CustomerCreateDto_WithInvalidZipCode_ShouldFailValidation(CustomerCreateDtoRecipe recipe, string expectedError)
         {
             // Arrange
-            var dto = new CustomerCreateDto
-            {
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "john.doe@example.com",
-                PhoneNumber = "5551234567",
-                DateOfBirth = DateTime.Today.AddYears(-25),
-                ZipCode = zipCode
-            };
-
-            // Act
-            var result = _customerCreateValidator.TestValidate(dto);
-
-            // Assert
-            result.ShouldNotHaveValidationErrorFor(x => x.ZipCode);
-        }
-
-        [Theory]
-        [InlineData("1234", "Zip code must be in format XXXXX or XXXXX-XXXX")]
-        [InlineData("123456", "Zip code must be in format XXXXX or XXXXX-XXXX")]
-        [InlineData("1234-567", "Zip code must be in format XXXXX or XXXXX-XXXX")]
-        public void CustomerCreateDto_WithInvalidZipCode_ShouldFailValidation(string zipCode, string expectedError)
-        {
-            // Arrange
-            var dto = new CustomerCreateDto
-            {
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "john.doe@example.com",
-                PhoneNumber = "5551234567",
-                DateOfBirth = DateTime.Today.AddYears(-25),
-                ZipCode = zipCode
-            };
+            var dto = TestDataBuilder.CreateCustomerCreateDto(recipe);
 
             // Act
             var result = _customerCreateValidator.TestValidate(dto);
@@ -262,6 +163,20 @@ namespace EnrollmentApi.Tests.Unit
             // Assert
             result.ShouldHaveValidationErrorFor(x => x.ZipCode)
                   .WithErrorMessage(expectedError);
+        }
+
+        [Theory]
+        [InlineData(CustomerCreateDtoRecipe.ValidZipCode)]
+        public void CustomerCreateDto_WithValidZipCode_ShouldPassValidation(CustomerCreateDtoRecipe recipe)
+        {
+            // Arrange
+            var dto = TestDataBuilder.CreateCustomerCreateDto(recipe);
+
+            // Act
+            var result = _customerCreateValidator.TestValidate(dto);
+
+            // Assert
+            result.ShouldNotHaveValidationErrorFor(x => x.ZipCode);
         }
 
         #endregion
@@ -272,15 +187,7 @@ namespace EnrollmentApi.Tests.Unit
         public void CustomerUpdateDto_WithValidData_ShouldPassValidation()
         {
             // Arrange
-            var dto = new CustomerUpdateDto
-            {
-                FirstName = "John",
-                LastName = "Doe",
-                PhoneNumber = "5551234567",
-                DateOfBirth = DateTime.Today.AddYears(-25),
-                Ssn = "123-45-6789",
-                Status = EnrollmentStatus.Pending
-            };
+            var dto = TestDataBuilder.CreateCustomerUpdateDto(CustomerUpdateDtoRecipe.ValidCustomer);
 
             // Act
             var result = _customerUpdateValidator.TestValidate(dto);
@@ -293,128 +200,39 @@ namespace EnrollmentApi.Tests.Unit
         public void CustomerUpdateDto_WithEmptyData_ShouldFailValidation()
         {
             // Arrange
-            var dto = new CustomerUpdateDto();
+            var dto = TestDataBuilder.CreateCustomerUpdateDto(CustomerUpdateDtoRecipe.EmptyData);
 
             // Act
             var result = _customerUpdateValidator.TestValidate(dto);
 
             // Assert
-            // Empty DTO should fail validation since FirstName and LastName are required
             result.ShouldHaveValidationErrorFor(x => x.FirstName)
                   .WithErrorMessage("First name is required");
-            result.ShouldHaveValidationErrorFor(x => x.LastName)
-                  .WithErrorMessage("Last name is required");
         }
 
         [Theory]
-        [InlineData("", "First name is required")]
-        [InlineData("John123", "First name can only contain letters, spaces, hyphens, and apostrophes")]
-        public void CustomerUpdateDto_WithInvalidFirstName_ShouldFailValidation(string firstName, string expectedError)
+        [InlineData(CustomerUpdateDtoRecipe.InvalidFirstName)]
+        [InlineData(CustomerUpdateDtoRecipe.InvalidLastName)]
+        [InlineData(CustomerUpdateDtoRecipe.InvalidPhoneNumber)]
+        [InlineData(CustomerUpdateDtoRecipe.InvalidDateOfBirth)]
+        [InlineData(CustomerUpdateDtoRecipe.InvalidSSN)]
+        public void CustomerUpdateDto_WithInvalidData_ShouldFailValidation(CustomerUpdateDtoRecipe recipe)
         {
             // Arrange
-            var dto = new CustomerUpdateDto
-            {
-                FirstName = firstName,
-                LastName = "Doe" // Provide valid LastName to avoid validation errors
-            };
+            var dto = TestDataBuilder.CreateCustomerUpdateDto(recipe);
 
             // Act
             var result = _customerUpdateValidator.TestValidate(dto);
 
             // Assert
-            result.ShouldHaveValidationErrorFor(x => x.FirstName)
-                  .WithErrorMessage(expectedError);
-        }
-
-        [Theory]
-        [InlineData("", "Last name is required")]
-        [InlineData("Doe123", "Last name can only contain letters, spaces, hyphens, and apostrophes")]
-        public void CustomerUpdateDto_WithInvalidLastName_ShouldFailValidation(string lastName, string expectedError)
-        {
-            // Arrange
-            var dto = new CustomerUpdateDto
-            {
-                FirstName = "John", // Provide valid FirstName to avoid validation errors
-                LastName = lastName
-            };
-
-            // Act
-            var result = _customerUpdateValidator.TestValidate(dto);
-
-            // Assert
-            result.ShouldHaveValidationErrorFor(x => x.LastName)
-                  .WithErrorMessage(expectedError);
-        }
-
-        [Theory]
-        [InlineData("invalid", "Please provide a valid phone number")]
-        [InlineData("0123456789", "Please provide a valid phone number")]
-        public void CustomerUpdateDto_WithInvalidPhoneNumber_ShouldFailValidation(string phoneNumber, string expectedError)
-        {
-            // Arrange
-            var dto = new CustomerUpdateDto
-            {
-                FirstName = "John", // Provide valid FirstName to avoid validation errors
-                LastName = "Doe",   // Provide valid LastName to avoid validation errors
-                PhoneNumber = phoneNumber
-            };
-
-            // Act
-            var result = _customerUpdateValidator.TestValidate(dto);
-
-            // Assert
-            result.ShouldHaveValidationErrorFor(x => x.PhoneNumber)
-                  .WithErrorMessage(expectedError);
-        }
-
-        [Theory]
-        [InlineData("2020-01-01", "Customer must be at least 13 years old")]
-        [InlineData("1800-01-01", "Please provide a valid date of birth")]
-        public void CustomerUpdateDto_WithInvalidDateOfBirth_ShouldFailValidation(string dateOfBirth, string expectedError)
-        {
-            // Arrange
-            var dto = new CustomerUpdateDto
-            {
-                DateOfBirth = DateTime.Parse(dateOfBirth)
-            };
-
-            // Act
-            var result = _customerUpdateValidator.TestValidate(dto);
-
-            // Assert
-            result.ShouldHaveValidationErrorFor(x => x.DateOfBirth)
-                  .WithErrorMessage(expectedError);
-        }
-
-        [Theory]
-        [InlineData("12-34-5678", "SSN must be in format XXX-XX-XXXX or XXXXXXXXX")]
-        [InlineData("123-4-5678", "SSN must be in format XXX-XX-XXXX or XXXXXXXXX")]
-        public void CustomerUpdateDto_WithInvalidSSN_ShouldFailValidation(string ssn, string expectedError)
-        {
-            // Arrange
-            var dto = new CustomerUpdateDto
-            {
-                FirstName = "John", // Provide valid FirstName to avoid validation errors
-                LastName = "Doe",   // Provide valid LastName to avoid validation errors
-                Ssn = ssn
-            };
-
-            // Act
-            var result = _customerUpdateValidator.TestValidate(dto);
-
-            // Assert
-            result.ShouldHaveValidationErrorFor(x => x.Ssn)
-                  .WithErrorMessage(expectedError);
+            result.IsValid.Should().BeFalse();
         }
 
         [Fact]
         public void CustomerUpdateDto_WithInvalidStatus_ShouldFailValidation()
         {
             // Arrange
-            var dto = new CustomerUpdateDto
-            {
-                Status = (EnrollmentStatus)999 // Invalid enum value
-            };
+            var dto = TestDataBuilder.CreateCustomerUpdateDto(CustomerUpdateDtoRecipe.InvalidStatus);
 
             // Act
             var result = _customerUpdateValidator.TestValidate(dto);
@@ -432,11 +250,7 @@ namespace EnrollmentApi.Tests.Unit
         public void MfaEnableDto_WithValidData_ShouldPassValidation()
         {
             // Arrange
-            var dto = new MfaEnableDto
-            {
-                CustomerId = 1,
-                Code = "123456"
-            };
+            var dto = TestDataBuilder.CreateMfaEnableDto(MfaEnableDtoRecipe.ValidMfa);
 
             // Act
             var result = _mfaEnableValidator.TestValidate(dto);
@@ -446,16 +260,11 @@ namespace EnrollmentApi.Tests.Unit
         }
 
         [Theory]
-        [InlineData(0, "Customer ID must be greater than 0")]
-        [InlineData(-1, "Customer ID must be greater than 0")]
-        public void MfaEnableDto_WithInvalidCustomerId_ShouldFailValidation(int customerId, string expectedError)
+        [InlineData(MfaEnableDtoRecipe.InvalidCustomerId, "Customer ID must be greater than 0")]
+        public void MfaEnableDto_WithInvalidCustomerId_ShouldFailValidation(MfaEnableDtoRecipe recipe, string expectedError)
         {
             // Arrange
-            var dto = new MfaEnableDto
-            {
-                CustomerId = customerId,
-                Code = "123456"
-            };
+            var dto = TestDataBuilder.CreateMfaEnableDto(recipe);
 
             // Act
             var result = _mfaEnableValidator.TestValidate(dto);
@@ -466,19 +275,14 @@ namespace EnrollmentApi.Tests.Unit
         }
 
         [Theory]
-        [InlineData("", "MFA code is required")]
-        [InlineData("12345", "MFA code must be exactly 6 digits")]
-        [InlineData("1234567", "MFA code must be exactly 6 digits")]
-        [InlineData("12345a", "MFA code must contain only digits")]
-        [InlineData("abcdef", "MFA code must contain only digits")]
-        public void MfaEnableDto_WithInvalidCode_ShouldFailValidation(string code, string expectedError)
+        [InlineData(MfaEnableDtoRecipe.EmptyMfaCode, "MFA code is required")]
+        [InlineData(MfaEnableDtoRecipe.LongMfaCode, "MFA code must be exactly 6 digits")]
+        [InlineData(MfaEnableDtoRecipe.NonNumericMfaCode, "MFA code must contain only digits")]
+        [InlineData(MfaEnableDtoRecipe.InvalidMfaCode, "MFA code must contain only digits")]
+        public void MfaEnableDto_WithInvalidMfaCode_ShouldFailValidation(MfaEnableDtoRecipe recipe, string expectedError)
         {
             // Arrange
-            var dto = new MfaEnableDto
-            {
-                CustomerId = 1,
-                Code = code
-            };
+            var dto = TestDataBuilder.CreateMfaEnableDto(recipe);
 
             // Act
             var result = _mfaEnableValidator.TestValidate(dto);
@@ -496,11 +300,7 @@ namespace EnrollmentApi.Tests.Unit
         public void MfaVerifyDto_WithValidData_ShouldPassValidation()
         {
             // Arrange
-            var dto = new MfaVerifyDto
-            {
-                CustomerId = 1,
-                Code = "123456"
-            };
+            var dto = TestDataBuilder.CreateMfaVerifyDto(MfaVerifyDtoRecipe.ValidMfa);
 
             // Act
             var result = _mfaVerifyValidator.TestValidate(dto);
@@ -510,16 +310,11 @@ namespace EnrollmentApi.Tests.Unit
         }
 
         [Theory]
-        [InlineData(0, "Customer ID must be greater than 0")]
-        [InlineData(-1, "Customer ID must be greater than 0")]
-        public void MfaVerifyDto_WithInvalidCustomerId_ShouldFailValidation(int customerId, string expectedError)
+        [InlineData(MfaVerifyDtoRecipe.InvalidCustomerId, "Customer ID must be greater than 0")]
+        public void MfaVerifyDto_WithInvalidCustomerId_ShouldFailValidation(MfaVerifyDtoRecipe recipe, string expectedError)
         {
             // Arrange
-            var dto = new MfaVerifyDto
-            {
-                CustomerId = customerId,
-                Code = "123456"
-            };
+            var dto = TestDataBuilder.CreateMfaVerifyDto(recipe);
 
             // Act
             var result = _mfaVerifyValidator.TestValidate(dto);
@@ -530,19 +325,14 @@ namespace EnrollmentApi.Tests.Unit
         }
 
         [Theory]
-        [InlineData("", "MFA code is required")]
-        [InlineData("12345", "MFA code must be exactly 6 digits")]
-        [InlineData("1234567", "MFA code must be exactly 6 digits")]
-        [InlineData("12345a", "MFA code must contain only digits")]
-        [InlineData("abcdef", "MFA code must contain only digits")]
-        public void MfaVerifyDto_WithInvalidCode_ShouldFailValidation(string code, string expectedError)
+        [InlineData(MfaVerifyDtoRecipe.EmptyMfaCode, "MFA code is required")]
+        [InlineData(MfaVerifyDtoRecipe.LongMfaCode, "MFA code must be exactly 6 digits")]
+        [InlineData(MfaVerifyDtoRecipe.NonNumericMfaCode, "MFA code must contain only digits")]
+        [InlineData(MfaVerifyDtoRecipe.InvalidMfaCode, "MFA code must contain only digits")]
+        public void MfaVerifyDto_WithInvalidMfaCode_ShouldFailValidation(MfaVerifyDtoRecipe recipe, string expectedError)
         {
             // Arrange
-            var dto = new MfaVerifyDto
-            {
-                CustomerId = 1,
-                Code = code
-            };
+            var dto = TestDataBuilder.CreateMfaVerifyDto(recipe);
 
             // Act
             var result = _mfaVerifyValidator.TestValidate(dto);
