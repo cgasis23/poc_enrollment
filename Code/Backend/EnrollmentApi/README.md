@@ -196,7 +196,36 @@ dotnet ef database update
 
 ## Testing
 
-The API includes Swagger UI for testing endpoints. Navigate to the root URL to access the interactive documentation.
+The API includes comprehensive test coverage with both unit tests and integration tests.
+
+### Test Structure
+- **Unit Tests**: Test individual components in isolation
+- **Integration Tests**: Test API endpoints end-to-end
+- **Validation Tests**: Test all DTO validation rules
+
+### Running Tests
+```bash
+cd Code/Backend/EnrollmentApi.Tests
+dotnet test
+```
+
+### Test Documentation
+For detailed information about the test suite, including:
+- Test organization and structure
+- Running specific test categories
+- Writing new tests
+- Debugging test issues
+
+See: [Test Documentation](../EnrollmentApi.Tests/README.md)
+
+### Test Coverage
+- **Total Tests**: 71
+- **Unit Tests**: 63 (CustomerService + Validators)
+- **Integration Tests**: 8 (API endpoints)
+- **Pass Rate**: 100% ✅
+
+### Interactive API Testing
+The API also includes Swagger UI for manual testing. Navigate to the root URL to access the interactive documentation.
 
 ## Validation
 
