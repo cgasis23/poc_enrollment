@@ -78,6 +78,7 @@ namespace EnrollmentApi.Services
                 LastName = createDto.LastName,
                 Email = createDto.Email,
                 PhoneNumber = createDto.PhoneNumber,
+                AccountNumber = createDto.AccountNumber,
                 Address = createDto.Address,
                 City = createDto.City,
                 State = createDto.State,
@@ -110,6 +111,9 @@ namespace EnrollmentApi.Services
 
             if (!string.IsNullOrEmpty(updateDto.PhoneNumber))
                 customer.PhoneNumber = updateDto.PhoneNumber;
+
+            if (updateDto.AccountNumber != null)
+                customer.AccountNumber = updateDto.AccountNumber;
 
             if (updateDto.Address != null)
                 customer.Address = updateDto.Address;
@@ -193,6 +197,24 @@ namespace EnrollmentApi.Services
             return await query.CountAsync();
         }
 
+        public async Task<CustomerDto?> LocateCustomerAsync(string accountNumber, string ssn, string birthdate)
+        {
+            // Parse the birthdate
+            if (!DateTime.TryParse(birthdate, out var parsedBirthdate))
+            {
+                return null;
+            }
+
+            // Use the AccountNumber field for customer location
+            var customer = await _context.Customers
+                .FirstOrDefaultAsync(c => 
+                    c.AccountNumber == accountNumber.Replace(" ", "") && 
+                    c.Ssn == ssn && 
+                    c.DateOfBirth.Date == parsedBirthdate.Date);
+
+            return customer != null ? MapToDto(customer) : null;
+        }
+
         private static CustomerDto MapToDto(Customer customer)
         {
             return new CustomerDto
@@ -202,12 +224,14 @@ namespace EnrollmentApi.Services
                 LastName = customer.LastName,
                 Email = customer.Email,
                 PhoneNumber = customer.PhoneNumber,
+                AccountNumber = customer.AccountNumber,
                 Address = customer.Address,
                 City = customer.City,
                 State = customer.State,
                 ZipCode = customer.ZipCode,
                 Country = customer.Country,
                 DateOfBirth = customer.DateOfBirth,
+                Ssn = customer.Ssn,
                 Status = customer.Status,
                 CreatedAt = customer.CreatedAt,
                 UpdatedAt = customer.UpdatedAt,

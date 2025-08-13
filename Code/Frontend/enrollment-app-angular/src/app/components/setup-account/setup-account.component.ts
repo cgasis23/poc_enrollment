@@ -6,6 +6,7 @@ interface FormData {
   accountNumber: string;
   ssn: string;
   birthdate: string;
+  fullName: string;
   email: string;
   username: string;
   password: string;

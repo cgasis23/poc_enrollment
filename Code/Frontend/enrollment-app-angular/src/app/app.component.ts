@@ -4,11 +4,13 @@ import { CustomerLocateComponent } from './components/customer-locate/customer-l
 import { SetupAccountComponent } from './components/setup-account/setup-account.component';
 import { ThankYouComponent } from './components/thank-you/thank-you.component';
 import { MFADemoComponent } from './components/mfa-demo/mfa-demo.component';
+import { Customer } from './services/customer.service';
 
 interface FormData {
   accountNumber: string;
   ssn: string;
   birthdate: string;
+  fullName: string;
   email: string;
   username: string;
   password: string;
@@ -32,10 +34,12 @@ interface FormData {
 export class AppComponent {
   currentStep = signal(1);
   showMFADemo = signal(false);
+  foundCustomer = signal<Customer | null>(null);
   formData = signal<FormData>({
     accountNumber: '',
     ssn: '',
     birthdate: '',
+    fullName: '',
     email: '',
     username: '',
     password: '',
@@ -45,6 +49,21 @@ export class AppComponent {
 
   handleNext(data: Partial<FormData>) {
     this.formData.update(prev => ({ ...prev, ...data }));
+    this.currentStep.update(prev => prev + 1);
+  }
+
+  handleCustomerFound(customer: Customer) {
+    this.foundCustomer.set(customer);
+    // Pre-fill the form with found customer data (excluding email)
+    this.formData.update(prev => ({
+      ...prev,
+      accountNumber: prev.accountNumber,
+      ssn: prev.ssn,
+      birthdate: prev.birthdate,
+      fullName: `${customer.firstName} ${customer.lastName}`,
+      phoneNumber: customer.phoneNumber
+      // Note: email is not pre-filled - user will enter it manually
+    }));
     this.currentStep.update(prev => prev + 1);
   }
 
@@ -63,6 +82,7 @@ export class AppComponent {
       accountNumber: '',
       ssn: '',
       birthdate: '',
+      fullName: '',
       email: '',
       username: '',
       password: '',

@@ -41,7 +41,8 @@
         @if (renderStep() === 'customer-locate') {
           <app-customer-locate 
             [formData]="formData()" 
-            (onNext)="handleNext($event)">
+            (onNext)="handleNext($event)"
+            (onCustomerFound)="handleCustomerFound($event)">
           </app-customer-locate>
         }
         

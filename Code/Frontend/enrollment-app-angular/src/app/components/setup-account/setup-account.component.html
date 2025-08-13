@@ -5,6 +5,18 @@
   </div>
   
   <form (submit)="handleSubmit($event)" class="space-y-4">
+    @if (formData?.fullName) {
+      <div class="bg-gray-50 border border-gray-200 rounded-md p-3 mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">
+          Full Name
+        </label>
+        <p class="text-gray-900 font-medium">{{ formData.fullName }}</p>
+        <p class="text-green-600 text-xs mt-1">
+          ✓ Pre-filled from customer locate
+        </p>
+      </div>
+    }
+    
     <div>
       <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
         Email

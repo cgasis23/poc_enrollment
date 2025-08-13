@@ -179,6 +179,41 @@ namespace EnrollmentApi.Controllers
         }
 
         /// <summary>
+        /// Locate customer by account number, SSN, and birthdate
+        /// </summary>
+        /// <param name="accountNumber">The account number to search for</param>
+        /// <param name="ssn">The SSN to search for</param>
+        /// <param name="birthdate">The birthdate to search for (YYYY-MM-DD format)</param>
+        /// <returns>The customer if found, null otherwise</returns>
+        /// <response code="200">Returns the customer if found</response>
+        /// <response code="404">If no customer was found with the given criteria</response>
+        /// <response code="500">If there was an internal server error</response>
+        [HttpGet("locate")]
+        public async Task<ActionResult<CustomerDto>> LocateCustomer(
+            [FromQuery] string accountNumber,
+            [FromQuery] string ssn,
+            [FromQuery] string birthdate)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(accountNumber) || string.IsNullOrWhiteSpace(ssn) || string.IsNullOrWhiteSpace(birthdate))
+                {
+                    return BadRequest(new { error = "Account number, SSN, and birthdate are required." });
+                }
+
+                var customer = await _customerService.LocateCustomerAsync(accountNumber, ssn, birthdate);
+                if (customer == null)
+                    return NotFound(new { error = "No customer found with the provided information." });
+
+                return Ok(customer);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "An error occurred while locating the customer.", details = ex.Message });
+            }
+        }
+
+        /// <summary>
         /// Get customer statistics
         /// </summary>
         [HttpGet("stats")]

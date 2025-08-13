@@ -14,5 +14,6 @@ namespace EnrollmentApi.Services
         Task<bool> CustomerExistsAsync(int id);
         Task<bool> CustomerExistsByEmailAsync(string email);
         Task<int> GetTotalCustomersCountAsync(CustomerSearchDto? searchDto = null);
+        Task<CustomerDto?> LocateCustomerAsync(string accountNumber, string ssn, string birthdate);
     }
 }

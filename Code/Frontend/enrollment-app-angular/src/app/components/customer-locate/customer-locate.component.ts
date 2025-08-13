@@ -1,6 +1,8 @@
 import { Component, Input, Output, EventEmitter, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { CustomerService, CustomerLocateRequest, Customer } from '../../services/customer.service';
+import { finalize } from 'rxjs/operators';
 
 interface FormData {
   accountNumber: string;
@@ -29,6 +31,7 @@ interface FormErrors {
 export class CustomerLocateComponent implements OnInit {
   @Input() formData!: FormData;
   @Output() onNext = new EventEmitter<Partial<FormData>>();
+  @Output() onCustomerFound = new EventEmitter<Customer>();
 
   formState = signal({
     accountNumber: '',
@@ -38,6 +41,11 @@ export class CustomerLocateComponent implements OnInit {
   });
 
   errors = signal<FormErrors>({});
+  isLoading = signal(false);
+  apiError = signal<string>('');
+  customerFound = signal<Customer | null>(null);
+
+  constructor(private customerService: CustomerService) {}
 
   ngOnInit() {
     this.formState.set({
@@ -207,13 +215,35 @@ export class CustomerLocateComponent implements OnInit {
   handleSubmit(event: Event) {
     event.preventDefault();
     if (this.validateForm()) {
-      // Prepare data for emission (include actual SSN digits)
-      const formData = {
+      this.isLoading.set(true);
+      this.apiError.set('');
+
+      const locateRequest: CustomerLocateRequest = {
         accountNumber: this.formState().accountNumber,
         ssn: this.formState()._ssnDigits, // Send actual digits, not masked
         birthdate: this.formState().birthdate
       };
-      this.onNext.emit(formData);
+
+      this.customerService.locateCustomer(locateRequest)
+        .pipe(finalize(() => this.isLoading.set(false)))
+        .subscribe({
+          next: (customer) => {
+            if (customer) {
+              // Customer found - show success message and emit the found customer
+              this.customerFound.set(customer);
+              setTimeout(() => {
+                this.onCustomerFound.emit(customer);
+              }, 2000); // Show success message for 2 seconds
+            } else {
+              // Customer not found - proceed to next step (create new customer)
+              this.onNext.emit(locateRequest);
+            }
+          },
+          error: (error) => {
+            console.error('Error locating customer:', error);
+            this.apiError.set(error.message || 'Failed to locate customer. Please try again.');
+          }
+        });
     }
   }
 }

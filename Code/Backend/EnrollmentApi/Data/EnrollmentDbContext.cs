@@ -23,6 +23,7 @@ namespace EnrollmentApi.Data
                 entity.HasKey(e => e.Id);
                 entity.HasIndex(e => e.Email).IsUnique();
                 entity.HasIndex(e => e.Ssn);
+                entity.HasIndex(e => e.AccountNumber);
                 
                 // Configure relationships
                 entity.HasMany(e => e.Documents)
@@ -66,11 +67,13 @@ namespace EnrollmentApi.Data
                     LastName = "Doe",
                     Email = "john.doe@example.com",
                     PhoneNumber = "555-123-4567",
+                    AccountNumber = "1234567890123456",
                     Address = "123 Main St",
                     City = "Anytown",
                     State = "CA",
                     ZipCode = "90210",
                     DateOfBirth = new DateTime(1990, 1, 1),
+                    Ssn = "123456789",
                     Status = EnrollmentStatus.Pending,
                     CreatedAt = DateTime.UtcNow
                 },
