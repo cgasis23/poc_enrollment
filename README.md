@@ -7,11 +7,14 @@ A comprehensive enrollment system built as a monorepo with modern frontend and b
 ```
 POC_ENROLLMENT/
 ├── Code/
-│   ├── Frontend/           # React-based enrollment application
-│   │   └── enrollment-app/ # Account opening React app
-│   └── Backend/            # Backend services (future development)
-├── .gitignore              # Git ignore rules for entire project
-└── README.md               # This file
+│   ├── Frontend/                    # React-based enrollment applications
+│   │   ├── enrollment-app/          # Account opening React app
+│   │   └── enrollment-app-angular/  # Angular-based enrollment app
+│   └── Backend/                     # .NET Core API with comprehensive testing
+│       ├── EnrollmentApi/           # Main API project
+│       └── EnrollmentApi.Tests/     # Test suite (Unit + Integration)
+├── .gitignore                       # Git ignore rules for entire project
+└── README.md                        # This file
 ```
 
 ## 🚀 Features
@@ -25,11 +28,14 @@ POC_ENROLLMENT/
 - **Responsive design** with Tailwind CSS
 - **Modern UI** with smooth transitions and animations
 
-### Backend (Future Development)
-- API endpoints for account management
-- Database integration
-- Authentication and authorization
-- Business logic implementation
+### Backend ✅ (Complete)
+- **REST API** built with .NET Core 8
+- **Customer Management** with CRUD operations
+- **Multi-Factor Authentication (MFA)** using TOTP
+- **Entity Framework Core** with in-memory database
+- **Comprehensive Validation** using FluentValidation
+- **Swagger Documentation** for API testing
+- **Comprehensive Test Suite** with 71 tests (100% pass rate)
 
 ## 🛠️ Tech Stack
 
@@ -39,17 +45,20 @@ POC_ENROLLMENT/
 - **Tailwind CSS** - Utility-first CSS framework
 - **Vanilla JavaScript** - No TypeScript for simplicity
 
-### Backend (Planned)
-- **Node.js/Express** or **Python/FastAPI** or **Java/Spring Boot**
-- **Database** - PostgreSQL, MySQL, or MongoDB
-- **Authentication** - JWT tokens
-- **API Documentation** - Swagger/OpenAPI
+### Backend ✅ (Complete)
+- **.NET Core 8** - Modern, high-performance framework
+- **Entity Framework Core** - ORM with in-memory database
+- **FluentValidation** - Comprehensive input validation
+- **Swagger/OpenAPI** - Interactive API documentation
+- **xUnit + Moq + Shouldly** - Comprehensive testing framework
+- **Multi-Factor Authentication** - TOTP implementation
 
 ## 📦 Getting Started
 
 ### Prerequisites
 
-- **Node.js** (version 16 or higher)
+- **Node.js** (version 16 or higher) - For frontend development
+- **.NET 8.0 SDK** - For backend development
 - **Git** for version control
 - **Code editor** (VS Code recommended)
 
@@ -72,14 +81,29 @@ POC_ENROLLMENT/
 
 4. **Open your browser and navigate to `http://localhost:3000`**
 
-### Backend Setup (Future)
+### Backend Setup ✅
 
 1. **Navigate to the Backend directory:**
    ```bash
-   cd Code/Backend
+   cd Code/Backend/EnrollmentApi
    ```
 
-2. **Follow backend-specific setup instructions** (to be added)
+2. **Install .NET 8.0 SDK** (if not already installed)
+
+3. **Run the API:**
+   ```bash
+   dotnet run
+   ```
+
+4. **Access the API:**
+   - **API**: http://localhost:5065
+   - **Swagger UI**: http://localhost:5065/swagger
+
+5. **Run Tests:**
+   ```bash
+   cd ../EnrollmentApi.Tests
+   dotnet test
+   ```
 
 ## 📁 Project Structure
 
@@ -101,18 +125,25 @@ Code/Frontend/enrollment-app/
 └── README.md
 ```
 
-### Backend Structure (Future)
+### Backend Structure ✅
 ```
 Code/Backend/
-├── src/
-│   ├── controllers/     # API controllers
-│   ├── models/         # Data models
-│   ├── routes/         # API routes
-│   ├── middleware/     # Custom middleware
-│   └── utils/          # Utility functions
-├── tests/              # Test files
-├── docs/               # API documentation
-└── config/             # Configuration files
+├── EnrollmentApi/                    # Main API project
+│   ├── Controllers/                  # API controllers
+│   ├── Models/                      # Data models
+│   ├── DTOs/                        # Data transfer objects
+│   ├── Services/                    # Business logic services
+│   ├── Validators/                  # FluentValidation rules
+│   ├── Data/                        # Entity Framework context
+│   └── Program.cs                   # Application entry point
+├── EnrollmentApi.Tests/             # Comprehensive test suite
+│   ├── Unit/                        # Unit tests
+│   │   ├── CustomerServiceTests.cs  # Service layer tests
+│   │   └── ValidatorTests.cs        # Validation tests
+│   ├── Integration/                 # Integration tests
+│   │   └── CustomerLocateIntegrationTests.cs
+│   └── README.md                    # Test documentation
+└── EnrollmentSolution.sln           # Solution file
 ```
 
 ## 🔄 Development Workflow
@@ -157,21 +188,88 @@ Create `.env` files in respective directories for environment-specific configura
 
 ## 🧪 Testing
 
+### Backend Testing ✅ (Complete)
+The backend includes comprehensive test coverage with both unit tests and integration tests.
+
+#### Test Structure
+```
+Code/Backend/EnrollmentApi.Tests/
+├── Unit/                           # Unit tests
+│   ├── CustomerServiceTests.cs     # CustomerService unit tests
+│   └── ValidatorTests.cs           # FluentValidation tests
+├── Integration/                    # Integration tests
+│   └── CustomerLocateIntegrationTests.cs  # API endpoint tests
+└── README.md                       # Detailed test documentation
+```
+
+#### Test Coverage
+- **Total Tests**: 71
+- **Unit Tests**: 63 (CustomerService + Validators)
+- **Integration Tests**: 8 (API endpoints)
+- **Pass Rate**: 100% ✅
+
+#### Running Tests
+```bash
+cd Code/Backend/EnrollmentApi.Tests
+dotnet test
+```
+
+#### Test Categories
+- **Unit Tests**: Test individual components in isolation using in-memory database
+- **Integration Tests**: Test API endpoints end-to-end with HTTP requests
+- **Validation Tests**: Test all DTO validation rules using FluentValidation
+
+#### Test Dependencies
+- **xUnit** (2.9.2) - Testing framework
+- **Moq** (4.20.70) - Mocking framework
+- **Shouldly** (4.2.1) - Readable assertions
+- **FluentAssertions** (8.5.0) - HTTP response assertions
+- **Microsoft.EntityFrameworkCore.InMemory** (9.0.8) - In-memory database
+- **Microsoft.AspNetCore.Mvc.Testing** (9.0.8) - Integration testing
+
+#### Test Documentation
+For detailed information about the test suite, including:
+- Test organization and structure
+- Running specific test categories
+- Writing new tests
+- Debugging test issues
+
+See: [Test Documentation](Code/Backend/EnrollmentApi.Tests/README.md)
+
 ### Frontend Testing (Future)
 - Unit tests with Jest and React Testing Library
 - Integration tests for form flows
 - E2E tests with Cypress or Playwright
 
-### Backend Testing (Future)
-- Unit tests for API endpoints
-- Integration tests for database operations
-- API testing with tools like Postman or Insomnia
+## 📚 API Documentation ✅
 
-## 📚 API Documentation (Future)
+The backend API includes comprehensive documentation and testing capabilities:
 
-When backend is implemented, API documentation will be available at:
-- Swagger UI: `http://localhost:8000/api-docs`
-- OpenAPI Spec: `http://localhost:8000/api-docs.json`
+### Interactive API Documentation
+- **Swagger UI**: http://localhost:5065/swagger
+- **OpenAPI Spec**: http://localhost:5065/swagger/v1/swagger.json
+
+### API Endpoints
+
+#### Customer Management
+- `GET /api/customers` - Get all customers with search/pagination
+- `GET /api/customers/{id}` - Get customer by ID
+- `GET /api/customers/email/{email}` - Get customer by email
+- `POST /api/customers` - Create new customer
+- `PUT /api/customers/{id}` - Update customer
+- `DELETE /api/customers/{id}` - Delete customer
+
+#### MFA Operations
+- `POST /api/mfa/setup/{customerId}` - Setup MFA for customer
+- `POST /api/mfa/verify` - Verify MFA code
+- `POST /api/mfa/enable` - Enable MFA
+- `POST /api/mfa/disable` - Disable MFA
+- `GET /api/mfa/status/{customerId}` - Get MFA status
+
+### API Testing
+- Use Swagger UI for interactive testing
+- Run integration tests: `dotnet test --filter "Integration"`
+- See [API Documentation](Code/Backend/EnrollmentApi/README.md) for detailed examples
 
 ## 🚀 Deployment
 
@@ -212,11 +310,13 @@ For support and questions:
 - [x] Responsive design with Tailwind CSS
 - [x] Form validation and error handling
 
-### Phase 2 🚧 (In Progress)
-- [ ] Backend API development
-- [ ] Database integration
-- [ ] Authentication system
-- [ ] API documentation
+### Phase 2 ✅ (Complete)
+- [x] Backend API development (.NET Core 8)
+- [x] Database integration (Entity Framework Core)
+- [x] Authentication system (MFA with TOTP)
+- [x] API documentation (Swagger/OpenAPI)
+- [x] Comprehensive test suite (71 tests, 100% pass rate)
+- [x] Input validation (FluentValidation)
 
 ### Phase 3 📋 (Planned)
 - [ ] User management system
